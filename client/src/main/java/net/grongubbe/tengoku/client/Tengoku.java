@@ -31,7 +31,7 @@ public class Tengoku {
     }
 
     private void tick() {
-
+        window.setWindowTitle("Tengoku " + time.fps());
     }
 
     private void cleanup() {

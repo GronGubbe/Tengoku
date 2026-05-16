@@ -2,8 +2,13 @@ package net.grongubbe.tengoku.client;
 
 public final class Time {
     private final double fixedDelta;
+
     private long lastTime;
     private double accumulator;
+
+    private double fpsTimer;
+    private int fpsFrames;
+    private int fps;
 
     public Time(double tickRate) {
         this.fixedDelta = 1.0 / tickRate;
@@ -11,6 +16,9 @@ public final class Time {
 
     public void start() {
         lastTime = System.nanoTime();
+        fpsTimer = 0.0;
+        fpsFrames = 0;
+        fps = 0;
     }
 
     public void beginFrame() {
@@ -19,6 +27,15 @@ public final class Time {
         lastTime = now;
 
         accumulator += Math.min(frameTime, 0.25);
+
+        fpsTimer += frameTime;
+        fpsFrames++;
+
+        if (fpsTimer >= 1.0) {
+            fps = (int) Math.round(fpsFrames / fpsTimer);
+            fpsTimer -= 1.0;
+            fpsFrames = 0;
+        }
     }
 
     public boolean shouldUpdate() {
@@ -35,5 +52,9 @@ public final class Time {
 
     public double fixedDelta() {
         return fixedDelta;
+    }
+
+    public int fps() {
+        return fps;
     }
 }
