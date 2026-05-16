@@ -1,0 +1,48 @@
+# ---------- Gradle ----------
+# Local Gradle cache
+.gradle/
+
+# ---------- Build output ----------
+**/build/
+
+# ---------- Compiled files ----------
+*.class
+
+# ---------- Logs ----------
+*.log
+
+# ---------- IntelliJ ----------
+.idea/
+
+# ---------- Packaged archives (artifacts) ----------
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ---------- Gradle Wrapper ----------
+!/gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.properties
+!/gradlew
+!/gradlew.bat
+
+# ---------- JVM crash logs ----------
+hs_err_pid*
+replay_pid*
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+
+# ---------- BlueJ ----------
+*.ctxt
+.mtj.tmp/
+
+# ---------- Personal ----------
+Notepad.md
+
+# Project exclude paths
+bin/
