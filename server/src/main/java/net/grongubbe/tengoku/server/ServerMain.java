@@ -16,7 +16,7 @@ public class ServerMain {
             @SuppressWarnings("unused")
             Properties properties = ResourceLoader.readProperties("preLoad/server.properties");
         } catch (Exception e) {
-            LOGGER.error("Uncaught exception reached final ");
+            LOGGER.error("Uncaught exception in main", e);
         }
     }
 }

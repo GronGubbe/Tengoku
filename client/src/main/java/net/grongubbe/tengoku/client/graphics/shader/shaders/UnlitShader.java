@@ -19,17 +19,17 @@ public class UnlitShader extends Shader {
 
     private static String loadVertexSource() {
         try {
-            return ResourceLoader.readString("Resources/shaders/unlit.vert");
+            return ResourceLoader.readString("shaders/unlit.vert");
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't find unlit.vert shader resource from Resources/shaders/unlit.vert: ", e);
+            throw new RuntimeException(e);
         }
     }
 
     private static String loadFragmentSource() {
         try {
-            return ResourceLoader.readString("Resources/shaders/unlit.frag");
+            return ResourceLoader.readString("shaders/unlit.frag");
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't find unlit.frag shader resource from Resources/shaders/unlit.frag: ", e);
+            throw new RuntimeException(e);
         }
     }
 }

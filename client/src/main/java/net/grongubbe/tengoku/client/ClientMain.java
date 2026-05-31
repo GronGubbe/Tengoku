@@ -14,7 +14,7 @@ public class ClientMain {
         try {
             tengoku.run();
         } catch (Exception e) {
-            LOGGER.error("Uncaught exception reached final ");
+            LOGGER.error("Uncaught exception in main", e);
         } finally {
             tengoku.cleanup();
         }
