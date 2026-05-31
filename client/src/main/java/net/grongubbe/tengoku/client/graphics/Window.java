@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.client;
+package net.grongubbe.tengoku.client.graphics;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
@@ -21,6 +21,7 @@ import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
@@ -60,6 +61,7 @@ public class Window {
         
         glfwMakeContextCurrent(window);
         createCapabilities();
+        glViewport(0, 0, width, height);
         
         glfwSwapInterval(vsync ? 1 : 0);
         glfwShowWindow(window);

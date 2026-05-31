@@ -1,5 +1,6 @@
-package net.grongubbe.tengoku.client;
+package net.grongubbe.tengoku.client.util;
 
+@SuppressWarnings("unused")
 public class ColorCycle {
 
     private static float triangle(float x) {

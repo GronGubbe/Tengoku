@@ -1,4 +1,8 @@
-package net.grongubbe.tengoku.client;
+package net.grongubbe.tengoku.client.core;
+
+import net.grongubbe.tengoku.client.graphics.Renderer;
+import net.grongubbe.tengoku.client.graphics.Window;
+import net.grongubbe.tengoku.client.util.Time;
 
 public class Tengoku {
     private final Window window;
@@ -34,7 +38,7 @@ public class Tengoku {
         window.setWindowTitle("Tengoku " + time.fps());
     }
 
-    private void cleanup() {
-
+    public void cleanup() {
+        window.dispose();
     }
 }

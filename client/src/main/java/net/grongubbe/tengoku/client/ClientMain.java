@@ -1,10 +1,22 @@
 package net.grongubbe.tengoku.client;
 
+import net.grongubbe.tengoku.client.core.Tengoku;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ClientMain {
-    public static void main(String[] args) {
+    private final static Logger LOGGER = LogManager.getLogger(ClientMain.class);
+
+    static void main() {
         System.out.println("Hello Client!");
         Tengoku tengoku = new Tengoku();
-        
-        tengoku.run();
+
+        try {
+            tengoku.run();
+        } catch (Exception e) {
+            LOGGER.error("Uncaught exception reached final ");
+        } finally {
+            tengoku.cleanup();
+        }
     }
 }

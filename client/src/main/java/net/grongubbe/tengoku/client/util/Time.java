@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.client;
+package net.grongubbe.tengoku.client.util;
 
 public final class Time {
     private final double fixedDelta;
@@ -50,6 +50,7 @@ public final class Time {
         return Math.max(0.0, Math.min(1.0, accumulator / fixedDelta));
     }
 
+    @SuppressWarnings("unused")
     public double fixedDelta() {
         return fixedDelta;
     }

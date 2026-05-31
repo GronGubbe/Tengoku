@@ -9,6 +9,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.language.jvm.tasks.ProcessResources
 
+@Suppress("unused")
 class JavaConventionsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.withPlugin("java") {

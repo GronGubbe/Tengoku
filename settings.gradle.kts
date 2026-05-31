@@ -1,5 +1,7 @@
 // root settings.gradle.kts
 
+@file:Suppress("UnstableApiUsage")
+
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
 pluginManagement {

@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.common.io;
+package net.grongubbe.tengoku.common.util.io;
 
 import net.grongubbe.tengoku.common.util.OptionalAutoCloseable;
 
