@@ -1,5 +1,7 @@
 package net.grongubbe.tengoku.client.graphics;
 
+import net.grongubbe.tengoku.client.graphics.material.Material;
+
 import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL30.*;

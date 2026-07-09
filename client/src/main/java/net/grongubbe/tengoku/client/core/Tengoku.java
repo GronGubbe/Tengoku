@@ -2,6 +2,7 @@ package net.grongubbe.tengoku.client.core;
 
 import net.grongubbe.tengoku.client.graphics.Renderer;
 import net.grongubbe.tengoku.client.graphics.Window;
+import net.grongubbe.tengoku.client.graphics.shader.ShaderBootstrapper;
 import net.grongubbe.tengoku.client.util.Time;
 
 public class Tengoku {
@@ -10,6 +11,7 @@ public class Tengoku {
     private final Time time;
 
     public Tengoku() {
+        ShaderBootstrapper.scanAndRegister();
         window = new Window(1024, 512, "Tengoku", false, true);
         renderer = new Renderer();
         time = new Time(20);

@@ -1,6 +1,10 @@
 package net.grongubbe.tengoku.client.graphics;
 
-import net.grongubbe.tengoku.client.graphics.shader.shaders.UnlitShader;
+import net.grongubbe.tengoku.client.graphics.material.Material;
+import net.grongubbe.tengoku.client.graphics.material.materials.UnlitColorBuilder;
+import net.grongubbe.tengoku.client.graphics.shader.Shader;
+import net.grongubbe.tengoku.client.graphics.shader.ShaderManager;
+import net.grongubbe.tengoku.client.graphics.shader.shaders.UnlitShaderDescriptor;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -26,23 +30,38 @@ public class Renderer {
         frame++;
         clear();
 
-        Material material = new Material(
-                new Vector3f(1.0f, 0.0f, 0.0f),
-                1.0f,
-                new UnlitShader()
-        );
+        Material material1 = new UnlitColorBuilder()
+                .tint(new Vector3f(1.0f, 0.0f, 0.0f))
+                .opacity(1f)
+                .shader(ShaderManager.get(UnlitShaderDescriptor.class, new UnlitShaderDescriptor()))
+                .build();
+
+        Material material2 = new UnlitColorBuilder()
+                .tint(new Vector3f(1.0f, 0.0f, 0.0f))
+                .opacity(1f)
+                .shader(ShaderManager.get(UnlitShaderDescriptor.class, new UnlitShaderDescriptor()))
+                .build();
 
         int[] indices = {
                 0, 1, 3, 3, 1, 2
         };
 
         drawQuad(
-                new Vector3f(-0.5f,  0.5f, 0.0f),
-                new Vector3f(-0.5f, -0.5f, 0.0f),
-                new Vector3f( 0.5f, -0.5f, 0.0f),
-                new Vector3f( 0.5f,  0.5f, 0.0f),
+                new Vector3f(-0.7f,  0.3f, 0.0f),
+                new Vector3f(-0.7f, -0.7f, 0.0f),
+                new Vector3f( 0.3f, -0.7f, 0.0f),
+                new Vector3f( 0.3f,  0.3f, 0.0f),
                 indices,
-                material
+                material1
+        );
+
+        drawQuad(
+                new Vector3f(-0.3f,  0.7f, 0.1f),
+                new Vector3f(-0.3f, -0.3f, 0.1f),
+                new Vector3f( 0.7f, -0.3f, 0.1f),
+                new Vector3f( 0.7f,  0.7f, 0.1f),
+                indices,
+                material2
         );
     }
 
@@ -82,10 +101,16 @@ public class Renderer {
     }
 
     private void draw(Mesh mesh) {
-        mesh.getMaterial().shader().bind();
+        Material material = mesh.getMaterial();
+        Shader shader = material.getShader();
+
+        shader.bind();
+        shader.setUniforms(material);
+
         glBindVertexArray(mesh.getVao());
         glDrawElements(GL_TRIANGLES, mesh.getIndicesCount(), GL_UNSIGNED_INT, 0);
-        mesh.getMaterial().shader().unbind();
+
+        shader.unbind();
     }
 
     private void clear() {
