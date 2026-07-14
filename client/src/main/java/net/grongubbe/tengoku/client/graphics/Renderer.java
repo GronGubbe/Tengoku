@@ -1,19 +1,22 @@
 package net.grongubbe.tengoku.client.graphics;
 
-import net.grongubbe.tengoku.client.graphics.material.Material;
-import net.grongubbe.tengoku.client.graphics.material.materials.UnlitColorBuilder;
-import net.grongubbe.tengoku.client.graphics.shader.Shader;
-import net.grongubbe.tengoku.client.graphics.shader.ShaderManager;
-import net.grongubbe.tengoku.client.graphics.shader.shaders.UnlitShaderDescriptor;
+import net.grongubbe.tengoku.client.asset.assets.Utils.Assets;
+import net.grongubbe.tengoku.client.asset.assets.Utils.UnlitMaterialBuilder;
+import net.grongubbe.tengoku.client.asset.assets.mesh.Mesh;
+import net.grongubbe.tengoku.client.asset.assets.material.Material;
+import net.grongubbe.tengoku.client.asset.assets.shader.Shader;
+import net.grongubbe.tengoku.client.core.Tengoku;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class Renderer {
+    private final Assets assets;
     private int frame = 0;
 
-    public Renderer() {
+    public Renderer(Tengoku tengoku) {
+        assets = tengoku.assets();
         setupGL();
     }
     
@@ -30,17 +33,17 @@ public class Renderer {
         frame++;
         clear();
 
-        Material material1 = new UnlitColorBuilder()
+        Material material1 = new UnlitMaterialBuilder()
                 .tint(new Vector3f(1.0f, 0.0f, 0.0f))
                 .opacity(1f)
-                .shader(ShaderManager.get(UnlitShaderDescriptor.class, new UnlitShaderDescriptor()))
-                .build();
+                .shader(assets.shader())
+                .build(assets);
 
-        Material material2 = new UnlitColorBuilder()
+        Material material2 = new UnlitMaterialBuilder()
                 .tint(new Vector3f(1.0f, 0.0f, 0.0f))
                 .opacity(1f)
-                .shader(ShaderManager.get(UnlitShaderDescriptor.class, new UnlitShaderDescriptor()))
-                .build();
+                .shader(assets.shader())
+                .build(assets);
 
         int[] indices = {
                 0, 1, 3, 3, 1, 2

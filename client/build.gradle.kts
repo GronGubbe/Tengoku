@@ -34,8 +34,6 @@ dependencies {
     runtimeOnly("org.lwjgl:lwjgl-stb") { artifact { classifier = lwjglNatives } }
 
     implementation(libs.joml)
-
-    implementation("org.reflections:reflections:0.10.2")
 }
 
 tasks.shadowJar {

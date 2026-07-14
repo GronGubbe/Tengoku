@@ -1,20 +1,17 @@
-package net.grongubbe.tengoku.client.graphics.shader;
+package net.grongubbe.tengoku.client.asset.assets.shader;
 
-import net.grongubbe.tengoku.client.graphics.material.Material;
-import net.grongubbe.tengoku.client.graphics.material.MaterialType;
+import net.grongubbe.tengoku.client.asset.Asset;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL20.*;
 
-public abstract class Shader {
+public class Shader implements Asset {
     private static final Logger LOGGER = LogManager.getLogger(Shader.class);
-    protected final int id;
+    private final int id;
 
-    protected final Handler[] handlers = new Handler[MaterialType.values().length];
-
-    protected Shader(ShaderStage... stages) {
+    Shader(ShaderStage... stages) {
         try {
             this.id = glCreateProgram();
 
@@ -57,14 +54,6 @@ public abstract class Shader {
         }
     }
 
-    public abstract void setUniforms(Material material);
-
-    public abstract void loadUniformLocations();
-
-    protected void bind(MaterialType type, Handler handler) {
-        handlers[type.ordinal()] = handler;
-    }
-
     public void setVec3(int loc, Vector3f value) {
         glUniform3f(loc, value.x, value.y, value.z);
     }
@@ -90,10 +79,5 @@ public abstract class Shader {
 
     public void delete() {
         glDeleteProgram(id);
-    }
-
-    @FunctionalInterface
-    protected interface Handler {
-        void apply(Material material);
     }
 }

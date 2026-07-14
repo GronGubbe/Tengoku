@@ -1,6 +1,7 @@
-package net.grongubbe.tengoku.client.graphics;
+package net.grongubbe.tengoku.client.asset.assets.mesh;
 
-import net.grongubbe.tengoku.client.graphics.material.Material;
+import net.grongubbe.tengoku.client.asset.Asset;
+import net.grongubbe.tengoku.client.asset.assets.material.Material;
 
 import java.nio.IntBuffer;
 
@@ -8,7 +9,7 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.memAllocInt;
 import static org.lwjgl.system.MemoryUtil.memFree;
 
-public class Mesh {
+public class Mesh implements Asset {
     private final float[] vertices;
     private final int[] indices;
 

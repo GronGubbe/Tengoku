@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.client.graphics.shader;
+package net.grongubbe.tengoku.client.asset.assets.shader;
 
 import net.grongubbe.tengoku.common.util.io.ResourceLoader;
 import org.apache.logging.log4j.LogManager;
