@@ -34,6 +34,9 @@ dependencies {
     runtimeOnly("org.lwjgl:lwjgl-stb") { artifact { classifier = lwjglNatives } }
 
     implementation(libs.joml)
+
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.datatype.jdk8)
 }
 
 tasks.shadowJar {

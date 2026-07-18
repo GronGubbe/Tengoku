@@ -6,11 +6,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
 
-public class ServerMain {
+public final class ServerMain {
     private final static Logger LOGGER = LogManager.getLogger(ServerMain.class);
 
     static void main() {
-        System.out.println("Hello Server!");
+        LOGGER.info("Starting Tengoku server");
 
         try {
             @SuppressWarnings("unused")

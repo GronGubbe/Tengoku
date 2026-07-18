@@ -1,7 +1,7 @@
 package net.grongubbe.tengoku.client.util;
 
 @SuppressWarnings("unused")
-public class ColorCycle {
+public final class ColorCycle {
 
     private static float triangle(float x) {
         x = x % 1.0f;

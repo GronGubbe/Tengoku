@@ -1,0 +1,7 @@
+{
+  "shader": "shaders/test.shader.json",
+  "parameters": {
+    "uTint": [1,0,1],
+    "uOpacity": 1
+  }
+}

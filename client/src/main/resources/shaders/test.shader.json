@@ -1,0 +1,18 @@
+{
+  "vertex": "shaders/test.vert",
+  "fragment": "shaders/test.frag",
+  "parameters": [
+    {
+      "slot": 0,
+      "name": "uTint",
+      "type": "VECTOR3",
+      "required": true
+    },
+    {
+      "slot": 1,
+      "name": "uOpacity",
+      "type": "FLOAT",
+      "required": true
+    }
+  ]
+}
