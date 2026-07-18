@@ -33,15 +33,15 @@ public class OpenGLModelUploader implements GpuUploader<Model, GpuModel> {
         List<GpuModelPart> parts = new ArrayList<>();
 
         for (ModelPart part : model.parts()) {
-            GpuMesh mesh = (GpuMesh) iterator.next();
+            GpuMesh gpuMesh = (GpuMesh) iterator.next();
 
-            List<GpuMaterial> materials = new ArrayList<>();
+            List<GpuMaterial> gpuMaterials = new ArrayList<>();
 
             for (int i = 0; i < part.materials().size(); i++) {
-                materials.add((GpuMaterial) iterator.next());
+                gpuMaterials.add((GpuMaterial) iterator.next());
             }
 
-            parts.add(new GpuModelPart(mesh, materials));
+            parts.add(new GpuModelPart(gpuMesh, gpuMaterials));
         }
 
         return new GpuModel(parts);

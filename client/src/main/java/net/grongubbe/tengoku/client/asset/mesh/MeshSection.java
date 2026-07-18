@@ -1,11 +1,11 @@
-package net.grongubbe.tengoku.client.gpu.submesh;
+package net.grongubbe.tengoku.client.asset.mesh;
 
-public final class GpuSubMesh {
+public final class MeshSection {
     private final int indexOffset;
     private final int indexCount;
     private final int materialSlot;
 
-    public GpuSubMesh(int indexOffset, int indexCount, int materialSlot) {
+    public MeshSection(int indexOffset, int indexCount, int materialSlot) {
         this.indexOffset = indexOffset;
         this.indexCount = indexCount;
         this.materialSlot = materialSlot;

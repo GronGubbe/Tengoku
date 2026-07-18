@@ -4,18 +4,18 @@ import java.util.List;
 
 public final class Mesh {
     private final MeshData data;
-    private final List<SubMesh> subMeshes;
+    private final List<MeshSection> meshSections;
 
-    public Mesh(MeshData data, List<SubMesh> subMeshes) {
+    public Mesh(MeshData data, List<MeshSection> meshSections) {
         this.data = data;
-        this.subMeshes = List.copyOf(subMeshes);
+        this.meshSections = List.copyOf(meshSections);
     }
 
     public MeshData data() {
         return data;
     }
 
-    public List<SubMesh> subMeshes() {
-        return subMeshes;
+    public List<MeshSection> subMeshes() {
+        return meshSections;
     }
 }

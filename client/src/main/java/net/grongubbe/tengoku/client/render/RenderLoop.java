@@ -19,7 +19,7 @@ public final class RenderLoop {
     public void frame(GpuModel model) {
         RenderThread.assertCurrent();
 
-        LOGGER.debug("Rendering frame");
+        LOGGER.trace("Rendering frame");
 
         uploadQueue.process();
 

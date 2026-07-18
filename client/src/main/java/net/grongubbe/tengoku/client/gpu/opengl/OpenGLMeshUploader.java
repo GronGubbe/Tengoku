@@ -1,10 +1,12 @@
 package net.grongubbe.tengoku.client.gpu.opengl;
 
-import net.grongubbe.tengoku.client.asset.mesh.*;
+import net.grongubbe.tengoku.client.asset.mesh.Mesh;
+import net.grongubbe.tengoku.client.asset.mesh.MeshData;
+import net.grongubbe.tengoku.client.asset.mesh.VertexAttribute;
+import net.grongubbe.tengoku.client.asset.mesh.VertexLayout;
 import net.grongubbe.tengoku.client.gpu.GpuResource;
 import net.grongubbe.tengoku.client.gpu.GpuUploader;
 import net.grongubbe.tengoku.client.gpu.mesh.GpuMesh;
-import net.grongubbe.tengoku.client.gpu.submesh.GpuSubMesh;
 import net.grongubbe.tengoku.client.render.RenderThread;
 
 import java.util.List;
@@ -35,14 +37,7 @@ public final class OpenGLMeshUploader implements GpuUploader<Mesh, GpuMesh> {
 
         glBindVertexArray(0);
 
-        List<GpuSubMesh> subMeshes = mesh.subMeshes().stream()
-                .map(subMesh -> new GpuSubMesh(
-                        subMesh.indexOffset(),
-                        subMesh.indexCount(),
-                        subMesh.materialSlot()
-                )).toList();
-
-        return new GpuMesh(vao, vertexBuffer, indexBuffer, subMeshes);
+        return new GpuMesh(vao, vertexBuffer, indexBuffer, mesh.subMeshes());
     }
 
     private void uploadVertexBuffer(int buffer, MeshData data) {

@@ -1,7 +1,7 @@
 package net.grongubbe.tengoku.client.gpu.mesh;
 
+import net.grongubbe.tengoku.client.asset.mesh.MeshSection;
 import net.grongubbe.tengoku.client.gpu.GpuResource;
-import net.grongubbe.tengoku.client.gpu.submesh.GpuSubMesh;
 
 import java.util.List;
 
@@ -10,17 +10,13 @@ public final class GpuMesh implements GpuResource {
     private final int vertexBuffer;
     private final int indexBuffer;
 
-    private final List<GpuSubMesh> subMeshes;
+    private final List<MeshSection> meshSections;
 
-    public GpuMesh(int vao, int vertexBuffer, int indexBuffer, List<GpuSubMesh> subMeshes) {
+    public GpuMesh(int vao, int vertexBuffer, int indexBuffer, List<MeshSection> meshSections) {
         this.vao = vao;
         this.vertexBuffer = vertexBuffer;
         this.indexBuffer = indexBuffer;
-        this.subMeshes = List.copyOf(subMeshes);
-    }
-
-    public List<GpuSubMesh> subMeshes() {
-        return subMeshes;
+        this.meshSections = List.copyOf(meshSections);
     }
 
     public int vao() {
@@ -33,5 +29,9 @@ public final class GpuMesh implements GpuResource {
 
     public int indexBuffer() {
         return indexBuffer;
+    }
+
+    public List<MeshSection> subMeshes() {
+        return meshSections;
     }
 }

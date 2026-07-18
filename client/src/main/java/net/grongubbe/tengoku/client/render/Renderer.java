@@ -1,8 +1,8 @@
 package net.grongubbe.tengoku.client.render;
 
+import net.grongubbe.tengoku.client.asset.mesh.MeshSection;
 import net.grongubbe.tengoku.client.gpu.material.GpuMaterial;
 import net.grongubbe.tengoku.client.gpu.mesh.GpuMesh;
-import net.grongubbe.tengoku.client.gpu.submesh.GpuSubMesh;
 import net.grongubbe.tengoku.client.gpu.model.GpuModel;
 import net.grongubbe.tengoku.client.gpu.model.GpuModelPart;
 import net.grongubbe.tengoku.client.gpu.opengl.OpenGLMaterialBinder;
@@ -40,14 +40,14 @@ public final class Renderer {
 
         glBindVertexArray(mesh.vao());
 
-        for (GpuSubMesh subMesh : mesh.subMeshes()) {
-            LOGGER.debug("Drawing submesh offset={} count={}", subMesh.indexOffset(), subMesh.indexCount());
+        for (MeshSection meshSection : mesh.subMeshes()) {
+            LOGGER.trace("Drawing submesh offset={} count={}", meshSection.indexOffset(), meshSection.indexCount());
 
-            GpuMaterial material = part.materials().get(subMesh.materialSlot());
+            GpuMaterial material = part.materials().get(meshSection.materialSlot());
 
             materialBinder.bind(material);
 
-            glDrawElements(GL_TRIANGLES, subMesh.indexCount(), GL_UNSIGNED_INT, (long) subMesh.indexOffset() * Integer.BYTES);
+            glDrawElements(GL_TRIANGLES, meshSection.indexCount(), GL_UNSIGNED_INT, (long) meshSection.indexOffset() * Integer.BYTES);
         }
     }
 }
