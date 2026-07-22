@@ -2,8 +2,12 @@ package net.grongubbe.tengoku.client.gpu.mesh;
 
 import net.grongubbe.tengoku.client.asset.mesh.MeshSection;
 import net.grongubbe.tengoku.client.gpu.GpuResource;
+import net.grongubbe.tengoku.client.render.RenderThread;
 
 import java.util.List;
+
+import static org.lwjgl.opengl.GL15.glDeleteBuffers;
+import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 
 public final class GpuMesh implements GpuResource {
     private final int vao;
@@ -33,5 +37,14 @@ public final class GpuMesh implements GpuResource {
 
     public List<MeshSection> subMeshes() {
         return meshSections;
+    }
+
+    @Override
+    public void destroy() {
+        RenderThread.assertCurrent();
+
+        glDeleteVertexArrays(vao);
+        glDeleteBuffers(vertexBuffer);
+        glDeleteBuffers(indexBuffer);
     }
 }

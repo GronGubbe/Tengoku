@@ -2,6 +2,8 @@ package net.grongubbe.tengoku.client.gpu.texture;
 
 import net.grongubbe.tengoku.client.gpu.GpuResource;
 
+import static org.lwjgl.opengl.GL11.glDeleteTextures;
+
 public final class GpuTexture implements GpuResource {
     private final int id;
 
@@ -11,5 +13,10 @@ public final class GpuTexture implements GpuResource {
 
     public int id() {
         return id;
+    }
+
+    @Override
+    public void destroy() {
+        glDeleteTextures(id);
     }
 }

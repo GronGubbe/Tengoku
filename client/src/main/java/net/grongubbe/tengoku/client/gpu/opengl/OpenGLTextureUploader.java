@@ -8,16 +8,16 @@ import net.grongubbe.tengoku.client.gpu.GpuUploader;
 import net.grongubbe.tengoku.client.gpu.texture.GpuTexture;
 import net.grongubbe.tengoku.client.render.RenderThread;
 
-import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL30.*;
 
 public final class OpenGLTextureUploader implements GpuUploader<Texture, GpuTexture> {
     @Override
-    public GpuTexture upload(Texture texture, List<GpuResource> dependencies) {
+    public GpuTexture upload(Texture texture, Map<Object, GpuResource> dependencies) {
         RenderThread.assertCurrent();
 
-        ImageData image = texture.image(); // TODO: handle image closing
+        ImageData image = texture.image();
 
         int textureId = glGenTextures();
 
@@ -46,6 +46,8 @@ public final class OpenGLTextureUploader implements GpuUploader<Texture, GpuText
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glBindTexture(GL_TEXTURE_2D, 0);
+
+        texture.close();
 
         return new GpuTexture(textureId);
     }

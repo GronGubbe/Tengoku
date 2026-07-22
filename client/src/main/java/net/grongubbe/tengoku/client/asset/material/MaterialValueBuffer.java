@@ -37,4 +37,8 @@ public final class MaterialValueBuffer {
     public Object get(int slot) {
         return values[slot];
     }
+
+    public Object[] values() {
+        return values;
+    }
 }

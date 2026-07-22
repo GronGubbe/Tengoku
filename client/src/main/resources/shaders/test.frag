@@ -1,10 +1,11 @@
-#version 330 core
+#version 460
 
-uniform vec3 uTint;
-uniform float uOpacity;
+in vec2 fragmentUv;
 
-out vec4 fragColor;
+uniform sampler2D albedo;
+
+out vec4 color;
 
 void main() {
-    fragColor = vec4(uTint, uOpacity);
+    color = texture(albedo, fragmentUv);
 }

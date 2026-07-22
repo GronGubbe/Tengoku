@@ -17,6 +17,7 @@ public final class StbImageDecoder implements ImageDecoder {
 
     @Override
     public ImageData decode(InputStream input) throws IOException {
+        STBImage.stbi_set_flip_vertically_on_load(true);
         ByteBuffer encoded = readInput(input);
 
         try {

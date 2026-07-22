@@ -14,4 +14,8 @@ public final class GpuModel implements GpuResource {
     public List<GpuModelPart> parts() {
         return parts;
     }
+
+    @Override
+    public void destroy() {
+    }
 }

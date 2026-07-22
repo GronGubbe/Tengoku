@@ -12,6 +12,7 @@ import net.grongubbe.tengoku.client.gpu.model.GpuModelPart;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class OpenGLModelUploader implements GpuUploader<Model, GpuModel> {
     @Override
@@ -27,8 +28,8 @@ public class OpenGLModelUploader implements GpuUploader<Model, GpuModel> {
     }
 
     @Override
-    public GpuModel upload(Model model, List<GpuResource> dependencies) {
-        Iterator<GpuResource> iterator = dependencies.iterator();
+    public GpuModel upload(Model model, Map<Object, GpuResource> dependencies) {
+        Iterator<GpuResource> iterator = dependencies.values().iterator();
 
         List<GpuModelPart> parts = new ArrayList<>();
 

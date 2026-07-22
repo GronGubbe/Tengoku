@@ -9,7 +9,7 @@ import net.grongubbe.tengoku.client.gpu.GpuUploader;
 import net.grongubbe.tengoku.client.gpu.mesh.GpuMesh;
 import net.grongubbe.tengoku.client.render.RenderThread;
 
-import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public final class OpenGLMeshUploader implements GpuUploader<Mesh, GpuMesh> {
     @Override
-    public GpuMesh upload(Mesh mesh, List<GpuResource> dependencies) {
+    public GpuMesh upload(Mesh mesh, Map<Object, GpuResource> dependencies) {
         RenderThread.assertCurrent();
 
         MeshData data = mesh.data();

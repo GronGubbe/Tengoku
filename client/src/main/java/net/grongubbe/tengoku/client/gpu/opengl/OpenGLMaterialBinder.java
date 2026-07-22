@@ -2,6 +2,7 @@ package net.grongubbe.tengoku.client.gpu.opengl;
 
 import net.grongubbe.tengoku.client.asset.shader.MaterialParameterDefinition;
 import net.grongubbe.tengoku.client.gpu.material.GpuMaterial;
+import net.grongubbe.tengoku.client.gpu.texture.GpuTexture;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -35,7 +36,14 @@ public final class OpenGLMaterialBinder {
             case Vector2f vector -> glUniform2f(location, vector.x, vector.y);
             case Vector3f vector -> glUniform3f(location, vector.x, vector.y, vector.z);
             case Vector4f vector -> glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
+            case GpuTexture texture -> uploadTexture(location, texture);
             default -> throw new IllegalArgumentException("Unsupported material parameter type: " + value.getClass().getName());
         }
+    }
+
+    private void uploadTexture(int location, GpuTexture texture) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture.id());
+        glUniform1i(location, 0);
     }
 }

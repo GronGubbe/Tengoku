@@ -130,6 +130,10 @@ public final class Window {
     }
 
     public void dispose() {
+        RenderThread.assertCurrent();
+
+        LOGGER.debug("Destroying window");
+
         if (window != NULL) {
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);

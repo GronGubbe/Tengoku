@@ -6,13 +6,13 @@ import net.grongubbe.tengoku.client.gpu.GpuUploader;
 import net.grongubbe.tengoku.client.gpu.shader.GpuShader;
 import net.grongubbe.tengoku.client.render.RenderThread;
 
-import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.*;
 
 public final class OpenGLShaderUploader implements GpuUploader<Shader, GpuShader> {
     @Override
-    public GpuShader upload(Shader shader, List<GpuResource> dependencies) {
+    public GpuShader upload(Shader shader, Map<Object, GpuResource> dependencies) {
         RenderThread.assertCurrent();
 
         int vertexShader = compileShader(GL_VERTEX_SHADER, shader.vertexSource());

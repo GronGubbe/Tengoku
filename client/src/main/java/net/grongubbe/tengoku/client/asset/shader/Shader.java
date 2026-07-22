@@ -2,6 +2,7 @@ package net.grongubbe.tengoku.client.asset.shader;
 
 import java.nio.file.Path;
 
+// TODO: Implement flexible shader stages so that not only fragment and vertex shaders are supported but also stuff like geometry shaders and compute shaders
 public final class Shader {
     private final Path path;
 

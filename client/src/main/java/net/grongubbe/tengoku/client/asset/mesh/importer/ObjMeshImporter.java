@@ -196,10 +196,7 @@ public final class ObjMeshImporter implements MeshImporter {
         MeshData data = new MeshData(layout, new VertexBuffer(vertexBuffer), new IndexBuffer(indexBuffer));
 
         // TODO: OBJ Importer should eventually handle material slots through .mtl files
-        return new Mesh(data, List.of(
-                new MeshSection(0, indices.size(), 0),
-                new MeshSection(3, indices.size(), 0)
-        ));
+        return new Mesh(data, List.of(new MeshSection(0, indices.size(), 0)));
     }
 
     private record Position(float x, float y, float z) {

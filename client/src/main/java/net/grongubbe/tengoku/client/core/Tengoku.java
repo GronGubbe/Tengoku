@@ -31,7 +31,7 @@ public final class Tengoku {
 
         time = new Time(20);
 
-        Model asset = services.assets().get(new ModelKey(Path.of("models/triangle.model.json")));
+        Model asset = services.assets().get(new ModelKey(Path.of("models/quad.model.json")));
         modelFuture = services.gpuResources().get(asset);
     }
 
@@ -69,6 +69,8 @@ public final class Tengoku {
 
     public void cleanup() {
         LOGGER.info("Cleaning up client resources");
+
+        services.gpuResources().cleanup();
 
         window.dispose();
     }
