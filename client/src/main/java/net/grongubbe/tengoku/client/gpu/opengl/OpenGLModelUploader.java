@@ -47,7 +47,6 @@ public final class OpenGLModelUploader implements GpuUploader<Model, GpuModel> {
         return new GpuModel(parts);
     }
 
-
     private GpuMesh resolveMesh(Model model, ModelPart part, Map<Asset, GpuResource> dependencies) {
         GpuResource resource = dependencies.get(part.mesh());
 
@@ -66,7 +65,6 @@ public final class OpenGLModelUploader implements GpuUploader<Model, GpuModel> {
 
         return mesh;
     }
-
 
     private GpuMaterial resolveMaterial(Model model, Material material, Map<Asset, GpuResource> dependencies) {
         GpuResource resource = dependencies.get(material);
