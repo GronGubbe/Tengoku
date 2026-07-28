@@ -1,53 +1,35 @@
 package net.grongubbe.tengoku.client.render;
 
-import net.grongubbe.tengoku.client.asset.mesh.MeshSection;
-import net.grongubbe.tengoku.client.gpu.material.GpuMaterial;
-import net.grongubbe.tengoku.client.gpu.mesh.GpuMesh;
-import net.grongubbe.tengoku.client.gpu.model.GpuModel;
-import net.grongubbe.tengoku.client.gpu.model.GpuModelPart;
-import net.grongubbe.tengoku.client.gpu.opengl.OpenGLMaterialBinder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import net.grongubbe.tengoku.client.gpu.opengl.OpenGLDrawCommandExecutor;
+import net.grongubbe.tengoku.client.render.frame.DrawCommand;
+import net.grongubbe.tengoku.client.render.frame.RenderFrame;
+import net.grongubbe.tengoku.client.render.frame.RenderView;
 
 public final class Renderer {
-    private static final Logger LOGGER = LogManager.getLogger(Renderer.class);
+    private final OpenGLDrawCommandExecutor drawExecutor;
 
-    private final OpenGLMaterialBinder materialBinder;
-
-    public Renderer() {
-        this.materialBinder = new OpenGLMaterialBinder();
+    public Renderer(OpenGLDrawCommandExecutor drawExecutor) {
+        this.drawExecutor = drawExecutor;
     }
 
-    public void render(GpuModel model) {
+    public void render(RenderFrame frame) {
         RenderThread.assertCurrent();
 
-        LOGGER.trace("Rendering");
+        for (RenderView view : frame.views()) {
+            beginView(view);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            for (DrawCommand command : frame.commands()) {
+                drawExecutor.draw(command, view);
+            }
 
-        for (GpuModelPart part : model.parts()) {
-            renderPart(part);
+            endView();
         }
-
-        glBindVertexArray(0);
     }
 
-    private void renderPart(GpuModelPart part) {
-        GpuMesh mesh = part.mesh();
+    private void beginView(RenderView view) {
+        // projection/view matrices later
+    }
 
-        glBindVertexArray(mesh.vao());
-
-        for (MeshSection meshSection : mesh.subMeshes()) {
-            LOGGER.trace("Drawing submesh offset={} count={}", meshSection.indexOffset(), meshSection.indexCount());
-
-            GpuMaterial material = part.materials().get(meshSection.materialSlot());
-
-            materialBinder.bind(material);
-
-            glDrawElements(GL_TRIANGLES, meshSection.indexCount(), GL_UNSIGNED_INT, (long) meshSection.indexOffset() * Integer.BYTES);
-        }
+    private void endView() {
     }
 }

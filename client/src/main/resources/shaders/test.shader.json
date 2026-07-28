@@ -7,6 +7,12 @@
       "name": "albedo",
       "type": "TEXTURE",
       "required": true
+    },
+    {
+      "slot": 1,
+      "name": "tint",
+      "type": "VECTOR4",
+      "required": true
     }
   ]
 }

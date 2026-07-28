@@ -37,7 +37,7 @@ public final class TextureLoader implements AssetLoader<TextureKey, Texture> {
                 ImageData data = decoder.decode(image);
                 LOGGER.info("Decoded texture {}x{} {}", data.width(), data.height(), data.format());
 
-                Texture texture = new Texture(data);
+                Texture texture = new Texture(key, data);
 
                 LOGGER.info("Texture object created");
 

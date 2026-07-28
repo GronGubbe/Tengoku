@@ -1,5 +1,6 @@
 package net.grongubbe.tengoku.client.gpu;
 
+import net.grongubbe.tengoku.client.asset.Asset;
 import net.grongubbe.tengoku.client.gpu.upload.UploadQueue;
 import net.grongubbe.tengoku.client.render.RenderThread;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +17,9 @@ public final class GpuResourceManager {
     private final UploadQueue uploadQueue;
     private final GpuUploaderRegistry uploaders;
 
-    private final Map<Object, CompletableFuture<? extends GpuResource>> cache = new ConcurrentHashMap<>();
+    private final Map<Asset, CompletableFuture<? extends GpuResource>> cache = new ConcurrentHashMap<>();
+
+    private boolean disposed = false;
 
     public GpuResourceManager(UploadQueue uploadQueue, GpuUploaderRegistry uploaders) {
         this.uploadQueue = uploadQueue;
@@ -24,12 +27,19 @@ public final class GpuResourceManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <A,G extends GpuResource>
-    CompletableFuture<G> get(A asset) {
+    public <A extends Asset, G extends GpuResource> CompletableFuture<G> get(A asset) {
+        if (disposed) {
+            throw new IllegalStateException("GpuResourceManager has been disposed");
+        }
+
+        if (asset == null) {
+            throw new IllegalArgumentException("GPU asset cannot be null");
+        }
+
         CompletableFuture<? extends GpuResource> existing = cache.get(asset);
 
         if(existing != null) {
-            LOGGER.debug("Returning cached GPU resource for {}", asset.getClass().getSimpleName());
+            LOGGER.debug("Returning cached GPU resource for {}", asset);
             return (CompletableFuture<G>) existing;
         }
 
@@ -43,18 +53,35 @@ public final class GpuResourceManager {
 
         cache.put(asset,future);
 
-        Map<Object, CompletableFuture<GpuResource>> dependencies = uploader.dependencies(asset).stream().collect(
+        Map<Asset, CompletableFuture<GpuResource>> dependencies = uploader.dependencies(asset).stream().collect(
                 Collectors.toMap(dependency -> dependency, this::get)
         );
 
         CompletableFuture
                 .allOf(dependencies.values().toArray(new CompletableFuture[0]))
                 .thenRun(() -> {
-                    Map<Object,GpuResource> resolved = dependencies.entrySet().stream().collect(
-                            Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().join())
-                    );
+                    Map<Asset, GpuResource> resolved;
 
-                    LOGGER.debug("Creating GPU resource for {}", asset.getClass().getSimpleName());
+                    try {
+                        resolved = dependencies.entrySet().stream().collect(
+                                Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().join())
+                        );
+                    } catch (Throwable throwable) {
+                        future.completeExceptionally(
+                                new IllegalStateException(
+                                        """
+                                        Failed to resolve GPU resource dependencies.
+                    
+                                        Asset:
+                                        %s
+                                        """.formatted(asset), throwable
+                                )
+                        );
+
+                        return;
+                    }
+
+                    LOGGER.debug("Creating GPU resource for {}", asset);
 
                     uploadQueue.submit(() -> {
                         try {
@@ -75,6 +102,8 @@ public final class GpuResourceManager {
 
     public void cleanup() {
         RenderThread.assertCurrent();
+
+        disposed = true;
 
         LOGGER.debug("Destroying {} GPU resources", cache.size());
 

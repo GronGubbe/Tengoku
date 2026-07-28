@@ -10,6 +10,7 @@ public final class ModelPart {
     private final List<Material> materials;
 
     public ModelPart(Mesh mesh, List<Material> materials) {
+
         this.mesh = mesh;
         this.materials = List.copyOf(materials);
     }

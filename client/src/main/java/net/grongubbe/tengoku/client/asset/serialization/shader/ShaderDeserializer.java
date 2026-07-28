@@ -36,7 +36,6 @@ public final class ShaderDeserializer implements AssetDeserializer<ShaderDefinit
                         parameter.get("slot").asInt(),
                         parameter.get("name").asText(),
                         MaterialParameterType.valueOf(parameter.get("type").asText()),
-                        parameter.get("required").asBoolean(),
                         mapper.convertValue(parameter.get("defaultValue"), Object.class)
                 ));
             }

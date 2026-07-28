@@ -10,7 +10,22 @@ public final class ShaderLayout {
 
     public ShaderLayout(List<MaterialParameterDefinition> parameters) {
         this.parameters = List.copyOf(parameters);
-        this.parametersByName = parameters.stream().collect(Collectors.toUnmodifiableMap(MaterialParameterDefinition::name, parameter -> parameter));
+
+        for (int i = 0; i < parameters.size(); i++) {
+            MaterialParameterDefinition parameter = parameters.get(i);
+
+            if (parameter.slot() != i) {
+                throw new IllegalArgumentException("Parameter slot %d does not match index %d (%s)"
+                        .formatted(parameter.slot(), i, parameter.name())
+                );
+            }
+        }
+
+        this.parametersByName = parameters.stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        MaterialParameterDefinition::name,
+                        parameter -> parameter
+                ));
     }
 
     public List<MaterialParameterDefinition> parameters() {

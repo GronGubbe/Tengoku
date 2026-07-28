@@ -13,6 +13,7 @@ import net.grongubbe.tengoku.common.util.io.ResourceLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,19 +31,61 @@ public final class ModelLoader implements AssetLoader<ModelKey, Model> {
 
             List<ModelPart> parts = new ArrayList<>();
 
-            for (ModelPartDefinition part : definition.parts()) {
-                Mesh mesh = context.get(new MeshKey(part.mesh()));
+            for (int partIndex = 0; partIndex < definition.parts().size(); partIndex++) {
+                ModelPartDefinition part = definition.parts().get(partIndex);
+
+                Mesh mesh;
+
+                try {
+                    mesh = context.get(new MeshKey(part.mesh()));
+                } catch (RuntimeException e) {
+                    throw new IllegalStateException("""
+                            Failed to load model mesh.
+
+                            Model:
+                            %s
+
+                            Part:
+                            %d
+
+                            Mesh:
+                            %s
+
+                            Reason:
+                            %s
+                            """.formatted(key.path(), partIndex, part.mesh(), e.getMessage()), e
+                    );
+                }
 
                 List<Material> materials = new ArrayList<>();
 
-                for (var material : part.materials()) {
-                    materials.add(context.get(new MaterialKey(material)));
+                for (Path materialPath : part.materials()) {
+                    try {
+                        materials.add(context.get(new MaterialKey(materialPath)));
+                    } catch (RuntimeException e) {
+                        throw new IllegalStateException("""
+                                Failed to load model material.
+
+                                Model:
+                                %s
+
+                                Part:
+                                %d
+
+                                Material:
+                                %s
+
+                                Reason:
+                                %s
+                                """.formatted(key.path(), partIndex, materialPath, e.getMessage()), e
+                        );
+                    }
                 }
 
                 parts.add(new ModelPart(mesh, materials));
             }
 
-            return new Model(parts);
+            return new Model(key, parts);
         }
     }
 }

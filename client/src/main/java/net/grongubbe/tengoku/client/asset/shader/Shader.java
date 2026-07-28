@@ -1,25 +1,27 @@
 package net.grongubbe.tengoku.client.asset.shader;
 
-import java.nio.file.Path;
+import net.grongubbe.tengoku.client.asset.Asset;
 
-// TODO: Implement flexible shader stages so that not only fragment and vertex shaders are supported but also stuff like geometry shaders and compute shaders
-public final class Shader {
-    private final Path path;
+import java.util.Objects;
+
+public final class Shader implements Asset {
+    private final ShaderKey key;
 
     private final String vertexSource;
     private final String fragmentSource;
 
     private final ShaderLayout layout;
 
-    public Shader(Path path, String vertexSource, String fragmentSource, ShaderLayout layout) {
-        this.path = path;
-        this.vertexSource = vertexSource;
-        this.fragmentSource = fragmentSource;
-        this.layout = layout;
+    public Shader(ShaderKey key, String vertexSource, String fragmentSource, ShaderLayout layout) {
+        this.key = Objects.requireNonNull(key);
+        this.vertexSource = Objects.requireNonNull(vertexSource);
+        this.fragmentSource = Objects.requireNonNull(fragmentSource);
+        this.layout = Objects.requireNonNull(layout);
     }
 
-    public Path path() {
-        return path;
+    @Override
+    public ShaderKey key() {
+        return key;
     }
 
     public String vertexSource() {
@@ -32,5 +34,10 @@ public final class Shader {
 
     public ShaderLayout layout() {
         return layout;
+    }
+
+    @Override
+    public String toString() {
+        return "Shader[" + key.path() + "]";
     }
 }

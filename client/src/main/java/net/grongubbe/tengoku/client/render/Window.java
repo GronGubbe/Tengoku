@@ -111,7 +111,15 @@ public final class Window {
     public boolean shouldClose() {
         return glfwWindowShouldClose(window);
     }
-    
+
+    public int width() {
+        return width;
+    }
+
+    public int height() {
+        return height;
+    }
+
     public void swapBuffers() {
         RenderThread.assertCurrent();
         LOGGER.trace("Swapping buffers");

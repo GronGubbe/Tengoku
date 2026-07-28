@@ -12,7 +12,7 @@ plugins {
 
 application {
     mainClass.set("net.grongubbe.tengoku.client.ClientMain")
-    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow")
 }
 
 val lwjglNatives = extensions.getByType(LwjglNativesExtension::class.java).classifier

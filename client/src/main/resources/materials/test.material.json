@@ -1,6 +1,7 @@
 {
   "shader": "shaders/test.shader.json",
   "parameters": {
-    "albedo": "textures/test.texture.json"
+    "albedo": "textures/test.texture.json",
+    "tint": [1.0, 1.0, 1.0, 1.0]
   }
 }

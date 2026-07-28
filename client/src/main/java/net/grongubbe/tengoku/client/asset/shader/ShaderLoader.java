@@ -26,7 +26,7 @@ public final class ShaderLoader implements AssetLoader<ShaderKey, Shader> {
 
             ShaderLayout layout = new ShaderLayout(definition.parameters());
 
-            return new Shader(key.path(), vertexSource, fragmentSource, layout);
+            return new Shader(key, vertexSource, fragmentSource, layout);
         }
     }
 }

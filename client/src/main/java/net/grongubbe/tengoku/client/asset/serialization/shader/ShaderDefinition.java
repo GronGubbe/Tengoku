@@ -10,11 +10,7 @@ public final class ShaderDefinition {
     private final Path fragment;
     private final List<MaterialParameterDefinition> parameters;
 
-    public ShaderDefinition(
-            Path vertex,
-            Path fragment,
-            List<MaterialParameterDefinition> parameters
-    ) {
+    public ShaderDefinition(Path vertex, Path fragment, List<MaterialParameterDefinition> parameters) {
         this.vertex = vertex;
         this.fragment = fragment;
         this.parameters = List.copyOf(parameters);

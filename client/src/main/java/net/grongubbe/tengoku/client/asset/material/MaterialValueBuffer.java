@@ -10,6 +10,10 @@ public final class MaterialValueBuffer {
     public MaterialValueBuffer(ShaderLayout layout) {
         this.layout = layout;
         this.values = new Object[layout.size()];
+
+        for (MaterialParameterDefinition parameter : layout.parameters()) {
+            values[parameter.slot()] = parameter.defaultValue();
+        }
     }
 
     public void set(int slot, Object value) {
@@ -40,5 +44,13 @@ public final class MaterialValueBuffer {
 
     public Object[] values() {
         return values;
+    }
+
+    public ShaderLayout layout() {
+        return layout;
+    }
+
+    public boolean hasValue(int slot) {
+        return values[slot] != null;
     }
 }

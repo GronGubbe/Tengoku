@@ -30,7 +30,7 @@ import net.grongubbe.tengoku.client.gpu.GpuResourceManager;
 import net.grongubbe.tengoku.client.gpu.GpuUploaderRegistry;
 import net.grongubbe.tengoku.client.gpu.opengl.*;
 import net.grongubbe.tengoku.client.gpu.upload.UploadQueue;
-import net.grongubbe.tengoku.client.render.RenderLoop;
+import net.grongubbe.tengoku.client.render.RenderSystem;
 import net.grongubbe.tengoku.client.render.Renderer;
 
 public final class ClientServices {
@@ -39,7 +39,7 @@ public final class ClientServices {
 
     private final GpuResourceManager gpuResourceManager;
     private final AssetManager assetManager;
-    private final RenderLoop renderLoop;
+    private final RenderSystem renderSystem;
 
     public ClientServices() {
         this.assetLoaderRegistry = new AssetLoaderRegistry();
@@ -47,11 +47,14 @@ public final class ClientServices {
 
         UploadQueue uploadQueue = new UploadQueue();
         AssetCache assetCache = new AssetCache();
-        Renderer renderer = new Renderer();
+        OpenGLMaterialBinder materialBinder = new OpenGLMaterialBinder();
+        OpenGLMeshBinder meshBinder = new OpenGLMeshBinder();
+        OpenGLDrawCommandExecutor drawExecutor = new OpenGLDrawCommandExecutor(materialBinder, meshBinder);
+        Renderer renderer = new Renderer(drawExecutor);
 
         this.gpuResourceManager = new GpuResourceManager(uploadQueue, gpuUploaderRegistry);
         this.assetManager = new AssetManager(assetCache, assetLoaderRegistry);
-        this.renderLoop = new RenderLoop(uploadQueue, renderer);
+        this.renderSystem = new RenderSystem(uploadQueue, renderer);
     }
 
     public void initialize() {
@@ -84,7 +87,7 @@ public final class ClientServices {
         return assetManager;
     }
 
-    public RenderLoop renderLoop() {
-        return renderLoop;
+    public RenderSystem renderSystem() {
+        return renderSystem;
     }
 }

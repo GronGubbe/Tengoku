@@ -4,14 +4,12 @@ public final class MaterialParameterDefinition {
     private final int slot;
     private final String name;
     private final MaterialParameterType type;
-    private final boolean required;
     private final Object defaultValue;
 
-    public MaterialParameterDefinition(int slot, String name, MaterialParameterType type, boolean required, Object defaultValue) {
+    public MaterialParameterDefinition(int slot, String name, MaterialParameterType type, Object defaultValue) {
         this.slot = slot;
         this.name = name;
         this.type = type;
-        this.required = required;
         this.defaultValue = defaultValue;
 
         if (defaultValue != null && !type.valueType().isInstance(defaultValue)) {
@@ -29,10 +27,6 @@ public final class MaterialParameterDefinition {
 
     public MaterialParameterType type() {
         return type;
-    }
-
-    public boolean required() {
-        return required;
     }
 
     public Object defaultValue() {

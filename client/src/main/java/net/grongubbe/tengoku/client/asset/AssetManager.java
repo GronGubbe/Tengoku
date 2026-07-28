@@ -18,7 +18,7 @@ public final class AssetManager implements AssetLoadingContext {
     }
 
     @Override
-    public <A> A get(AssetKey<A> key) {
+    public <A extends Asset> A get(AssetKey<A> key) {
         A cached = cache.get(key);
 
         if (cached != null) {
