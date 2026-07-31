@@ -14,7 +14,7 @@ class JavaConventionsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.withPlugin("java") {
             project.extensions.getByType(JavaPluginExtension::class.java).toolchain.languageVersion.set(
-                JavaLanguageVersion.of(25)
+                JavaLanguageVersion.of(26)
             )
 
             project.tasks.withType(JavaCompile::class.java).configureEach {
