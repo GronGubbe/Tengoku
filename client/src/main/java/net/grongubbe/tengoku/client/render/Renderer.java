@@ -5,6 +5,8 @@ import net.grongubbe.tengoku.client.render.frame.DrawCommand;
 import net.grongubbe.tengoku.client.render.frame.RenderFrame;
 import net.grongubbe.tengoku.client.render.frame.RenderView;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public final class Renderer {
     private final OpenGLDrawCommandExecutor drawExecutor;
 
@@ -14,6 +16,8 @@ public final class Renderer {
 
     public void render(RenderFrame frame) {
         RenderThread.assertCurrent();
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         for (RenderView view : frame.views()) {
             beginView(view);

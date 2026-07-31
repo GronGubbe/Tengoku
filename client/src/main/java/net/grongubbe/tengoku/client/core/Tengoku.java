@@ -1,21 +1,20 @@
 package net.grongubbe.tengoku.client.core;
 
-import net.grongubbe.tengoku.client.asset.model.Model;
 import net.grongubbe.tengoku.client.asset.model.ModelKey;
-import net.grongubbe.tengoku.client.gpu.model.GpuModel;
 import net.grongubbe.tengoku.client.render.Window;
-import net.grongubbe.tengoku.client.scene.Transform;
-import net.grongubbe.tengoku.client.scene.camera.Camera;
-import net.grongubbe.tengoku.client.render.frame.DrawCommandExtractor;
-import net.grongubbe.tengoku.client.render.frame.RenderFrame;
-import net.grongubbe.tengoku.client.render.frame.RenderView;
-import net.grongubbe.tengoku.client.scene.camera.projection.PerspectiveProjection;
+import net.grongubbe.tengoku.client.render.scene.RenderObject;
+import net.grongubbe.tengoku.client.render.scene.RenderScene;
+import net.grongubbe.tengoku.client.render.scene.camera.Camera;
+import net.grongubbe.tengoku.client.render.scene.camera.projection.PerspectiveProjection;
 import net.grongubbe.tengoku.client.util.Time;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Quaternionf;
 
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
+
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.glEnable;
 
 public final class Tengoku {
     private static final Logger LOGGER = LogManager.getLogger(Tengoku.class);
@@ -24,13 +23,8 @@ public final class Tengoku {
     private final Window window;
     private final Time time;
 
-
     private final Camera camera;
-
-    private final Transform modelTransform = new Transform();
-    private final CompletableFuture<GpuModel> modelFuture;
-
-    private GpuModel model;
+    private final RenderScene scene = new RenderScene();
 
     public Tengoku() {
         LOGGER.info("Creating Tengoku instance");
@@ -38,15 +32,17 @@ public final class Tengoku {
         window = new Window(1024, 512, "Tengoku", false, true);
 
         camera = new Camera(new PerspectiveProjection((float) Math.toRadians(70.0), (float) window.width() / window.height(), 0.1f, 1000.0f));
-        camera.transform().setPosition(0, 0, 3);
+        camera.transform().setPosition(0, 0, 4);
 
         services = new ClientServices();
         services.initialize();
 
         time = new Time(20);
 
-        Model asset = services.assets().get(new ModelKey(Path.of("models/quad.model.json")));
-        modelFuture = services.gpuResources().get(asset);
+        RenderObject renderObject = new RenderObject(services.assets().get(new ModelKey(Path.of("models/cube.model.json"))));
+        scene.add(renderObject);
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     public void run() {
@@ -64,19 +60,9 @@ public final class Tengoku {
                 time.consumeUpdate();
             }
 
-            if (model == null && modelFuture.isDone()) {
-                model = modelFuture.join();
-            }
+            services.renderSystem().render(scene, camera);
 
-            RenderFrame frame = new RenderFrame();
-
-            frame.addView(new RenderView(camera));
-
-            if (model != null) {
-                DrawCommandExtractor.extract(frame, model, modelTransform);
-            }
-
-            services.renderSystem().render(frame);
+            scene.objects().getFirst().transform().rotate(new Quaternionf().setAngleAxis((float) Math.toRadians(1), 0, 1, 0));
 
             window.swapBuffers();
         }

@@ -19,12 +19,12 @@ public final class MeshDeserializer implements AssetDeserializer<MeshDefinition>
     public MeshDefinition deserialize(InputStream input) throws IOException {
         JsonNode root = mapper.readTree(input);
 
-        JsonNode model = root.get("model");
+        JsonNode mesh = root.get("mesh");
 
-        if (model == null || !model.isTextual()) {
-            throw new IOException("Mesh definition is missing required field \"model\".");
+        if (mesh == null || !mesh.isTextual()) {
+            throw new IOException("Mesh definition is missing required field \"mesh\".");
         }
 
-        return new MeshDefinition(Path.of(model.asText()));
+        return new MeshDefinition(Path.of(mesh.asText()));
     }
 }

@@ -1,6 +1,6 @@
-package net.grongubbe.tengoku.client.scene.camera;
+package net.grongubbe.tengoku.client.render.scene.camera;
 
-import net.grongubbe.tengoku.client.scene.Transform;
+import net.grongubbe.tengoku.client.render.scene.Transform;
 import org.joml.Matrix4f;
 
 import java.util.Objects;

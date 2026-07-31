@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.client.scene;
+package net.grongubbe.tengoku.client.render.scene;
 
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;

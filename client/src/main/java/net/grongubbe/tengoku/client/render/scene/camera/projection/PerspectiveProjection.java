@@ -1,6 +1,6 @@
-package net.grongubbe.tengoku.client.scene.camera.projection;
+package net.grongubbe.tengoku.client.render.scene.camera.projection;
 
-import net.grongubbe.tengoku.client.scene.camera.Projection;
+import net.grongubbe.tengoku.client.render.scene.camera.Projection;
 import org.joml.Matrix4f;
 
 public final class PerspectiveProjection implements Projection {

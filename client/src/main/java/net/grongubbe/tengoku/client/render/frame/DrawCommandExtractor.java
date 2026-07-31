@@ -1,15 +1,35 @@
 package net.grongubbe.tengoku.client.render.frame;
 
 import net.grongubbe.tengoku.client.asset.mesh.MeshSection;
+import net.grongubbe.tengoku.client.gpu.GpuResourceManager;
 import net.grongubbe.tengoku.client.gpu.material.GpuMaterial;
 import net.grongubbe.tengoku.client.gpu.model.GpuModel;
 import net.grongubbe.tengoku.client.gpu.model.GpuModelPart;
-import net.grongubbe.tengoku.client.scene.Transform;
+import net.grongubbe.tengoku.client.render.scene.RenderObject;
 import org.joml.Matrix4f;
 
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
 public final class DrawCommandExtractor {
-    public static void extract(RenderFrame frame, GpuModel model, Transform transform) {
-        Matrix4f modelMatrix = transform.matrix(new Matrix4f());
+    private final GpuResourceManager gpuResources;
+
+    private final Matrix4f modelMatrix = new Matrix4f();
+
+    public DrawCommandExtractor(GpuResourceManager gpuResources) {
+        this.gpuResources = Objects.requireNonNull(gpuResources);
+    }
+
+    public void extract(RenderFrame frame, RenderObject object) {
+        CompletableFuture<GpuModel> future = gpuResources.get(object.model());
+
+        if (!future.isDone()) {
+            return;
+        }
+
+        GpuModel model = future.join();
+
+        object.transform().matrix(modelMatrix);
 
         for (GpuModelPart part : model.parts()) {
             for (MeshSection section : part.mesh().subMeshes()) {

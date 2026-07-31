@@ -32,6 +32,7 @@ import net.grongubbe.tengoku.client.gpu.opengl.*;
 import net.grongubbe.tengoku.client.gpu.upload.UploadQueue;
 import net.grongubbe.tengoku.client.render.RenderSystem;
 import net.grongubbe.tengoku.client.render.Renderer;
+import net.grongubbe.tengoku.client.render.frame.DrawCommandExtractor;
 
 public final class ClientServices {
     private final AssetLoaderRegistry assetLoaderRegistry;
@@ -39,6 +40,7 @@ public final class ClientServices {
 
     private final GpuResourceManager gpuResourceManager;
     private final AssetManager assetManager;
+
     private final RenderSystem renderSystem;
 
     public ClientServices() {
@@ -54,7 +56,10 @@ public final class ClientServices {
 
         this.gpuResourceManager = new GpuResourceManager(uploadQueue, gpuUploaderRegistry);
         this.assetManager = new AssetManager(assetCache, assetLoaderRegistry);
-        this.renderSystem = new RenderSystem(uploadQueue, renderer);
+
+        DrawCommandExtractor drawCommandExtractor = new DrawCommandExtractor(gpuResourceManager);
+
+        this.renderSystem = new RenderSystem(uploadQueue, drawCommandExtractor, renderer);
     }
 
     public void initialize() {

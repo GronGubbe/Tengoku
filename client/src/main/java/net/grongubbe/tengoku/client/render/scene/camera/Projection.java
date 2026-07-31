@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.client.scene.camera;
+package net.grongubbe.tengoku.client.render.scene.camera;
 
 import org.joml.Matrix4f;
 
