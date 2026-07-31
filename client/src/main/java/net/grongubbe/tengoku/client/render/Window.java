@@ -3,6 +3,7 @@ package net.grongubbe.tengoku.client.render;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
@@ -67,7 +68,7 @@ public final class Window {
     }
 
     private void init() {
-        errorCallback = GLFWErrorCallback.create((error, description) -> LOGGER.error("GLFW error {}: {}", error, description));
+        errorCallback = GLFWErrorCallback.create((error, description) -> LOGGER.error("GLFW error {}: {}", error, MemoryUtil.memUTF8(description)));
         errorCallback.set();
 
         LOGGER.info("Initializing GLFW");
@@ -76,8 +77,6 @@ public final class Window {
             throw new IllegalStateException("Failed to initialize GLFW");
         }
 
-        LOGGER.info("Created OpenGL window {}x{}", width, height);
-        
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
@@ -85,16 +84,27 @@ public final class Window {
         
         long primaryMonitor = glfwGetPrimaryMonitor();
         window = glfwCreateWindow(width, height, title, fullscreen ? primaryMonitor : NULL, NULL);
+
         if (window == NULL) {
-            dispose();
+            cleanupInitFailure();
+
             throw new IllegalStateException("Failed to create GLFW window");
         }
-        
+
+        LOGGER.info("Created OpenGL window {}x{}", width, height);
+
         glfwMakeContextCurrent(window);
-        createCapabilities();
+
+        try {
+            createCapabilities();
+        } catch (RuntimeException e) {
+            cleanupInitFailure();
+            throw new IllegalStateException("Failed to initialize OpenGL", e);
+        }
 
         if (!getCapabilities().OpenGL33) {
-            throw new IllegalStateException("OpenGL 3.3 required");
+            cleanupInitFailure();
+            throw new IllegalStateException("OpenGL 3.3 or newer is required, detected " + glGetString(GL_VERSION));
         }
 
         LOGGER.info("OpenGL initialized: {}", glGetString(GL_VERSION));
@@ -106,6 +116,20 @@ public final class Window {
         
         glfwSwapInterval(vsync ? 1 : 0);
         glfwShowWindow(window);
+    }
+
+    private void cleanupInitFailure() {
+        if (window != NULL) {
+            glfwDestroyWindow(window);
+            window = NULL;
+        }
+
+        glfwTerminate();
+
+        if (errorCallback != null) {
+            errorCallback.free();
+            errorCallback = null;
+        }
     }
 
     public boolean shouldClose() {
