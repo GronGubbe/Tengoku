@@ -19,7 +19,7 @@ class JavaConventionsPlugin : Plugin<Project> {
 
             project.tasks.withType(JavaCompile::class.java).configureEach {
                 options.encoding = "UTF-8"
-                options.release.set(25)
+                options.release.set(26)
             }
 
             project.tasks.withType(ProcessResources::class.java).configureEach {
