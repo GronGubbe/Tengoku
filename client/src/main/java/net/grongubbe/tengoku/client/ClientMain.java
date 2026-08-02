@@ -8,20 +8,12 @@ public final class ClientMain {
     private static final Logger LOGGER = LogManager.getLogger(ClientMain.class);
 
     static void main() {
-        Tengoku game = null;
-
-        try {
+        try (Tengoku tengoku = new Tengoku()) {
             LOGGER.info("Starting Tengoku");
-
-            game = new Tengoku();
-            game.run();
+            tengoku.run();
         } catch (Throwable throwable) {
             LOGGER.error("Fatal client error", throwable);
         } finally {
-            if (game != null) {
-                game.cleanup();
-            }
-
             LOGGER.info("Tengoku stopped");
         }
     }

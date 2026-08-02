@@ -1,110 +1,117 @@
 package net.grongubbe.tengoku.client.render;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.grongubbe.tengoku.client.platform.glfw.GLFWContext;
+import net.grongubbe.tengoku.client.platform.glfw.GLFWWindow;
+import net.grongubbe.tengoku.client.platform.opengl.OpenGLContext;
+import net.grongubbe.tengoku.client.render.scene.camera.Camera;
 
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL.getCapabilities;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
+public final class Window implements AutoCloseable {
+    private int width;
+    private int height;
+    private boolean closed;
 
-public final class Window {
-    private static final Logger LOGGER = LogManager.getLogger(Window.class);
+    private final GLFWContext glfwContext;
+    private final GLFWWindow glfwWindow;
+    private final OpenGLContext openGLContext;
 
-    private final int width;
-    private final int height;
-    private final String title;
-    private final boolean fullscreen;
-    private final boolean vsync;
-
-    private long window;
+    private Camera resizeCamera;
 
     public Window(int width, int height, String title, boolean fullscreen, boolean vsync) {
         this.width = width;
         this.height = height;
-        this.title = title;
-        this.fullscreen = fullscreen;
-        this.vsync = vsync;
 
-        init();
+        GLFWContext createdContext = null;
+        GLFWWindow createdWindow = null;
+        OpenGLContext createdOpenGLContext;
+
+        try {
+            createdContext = new GLFWContext();
+            createdWindow = new GLFWWindow(width, height, title, fullscreen);
+
+            createdOpenGLContext = new OpenGLContext(createdWindow, width, height);
+
+            createdWindow.setFramebufferSizeCallback(this::resize);
+            createdWindow.setSwapInterval(vsync ? 1 : 0);
+            createdWindow.show();
+
+            glfwContext = createdContext;
+            glfwWindow = createdWindow;
+            openGLContext = createdOpenGLContext;
+
+        } catch (Throwable throwable) {
+            if (createdWindow != null) {
+                createdWindow.close();
+            }
+
+            if (createdContext != null) {
+                createdContext.close();
+            }
+
+            throw throwable;
+        }
     }
 
-    private void init() {
-        glfwDefaultWindowHints();
+    public void setResizeCamera(Camera camera) {
+        this.resizeCamera = camera;
 
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        camera.resize(width, height);
+    }
 
-        long monitor = fullscreen ? glfwGetPrimaryMonitor() : NULL;
+    private void resize(int width, int height) {
+        this.width = width;
+        this.height = height;
 
-        window = glfwCreateWindow(width, height, title, monitor, NULL);
+        openGLContext.resize(width, height);
 
-        if (window == NULL) {
-            throw new IllegalStateException("Failed to create GLFW window");
+        if (resizeCamera != null) {
+            resizeCamera.resize(width, height);
         }
-
-        LOGGER.info("Created OpenGL window {}x{}", width, height);
-
-        glfwMakeContextCurrent(window);
-        createCapabilities();
-        if (!getCapabilities().OpenGL33) {
-            throw new IllegalStateException("OpenGL 3.3 or newer is required, detected " + glGetString(GL_VERSION));
-        }
-
-        LOGGER.info("OpenGL initialized: {}", glGetString(GL_VERSION));
-
-        RenderThread.initialize();
-        RenderThread.assertCurrent();
-
-        glViewport(0, 0, width, height);
-
-        glfwSwapInterval(vsync ? 1 : 0);
-
-        glfwShowWindow(window);
     }
 
     public boolean shouldClose() {
-        return glfwWindowShouldClose(window);
+        return glfwWindow.shouldClose();
     }
 
-    public int width() {
+    public int framebufferWidth() {
         return width;
     }
 
-    public int height() {
+    public int framebufferHeight() {
         return height;
     }
 
     public void swapBuffers() {
         RenderThread.assertCurrent();
 
-        glfwSwapBuffers(window);
+        glfwWindow.swapBuffers();
     }
     
     public void pollEvents() {
         RenderThread.assertCurrent();
 
-        glfwPollEvents();
+        glfwWindow.pollEvents();
     }
     
     public void setWindowTitle(String title) {
         RenderThread.assertCurrent();
 
-        glfwSetWindowTitle(window, title);
+        glfwWindow.setTitle(title);
     }
 
-    public void dispose() {
+    @Override
+    public void close() {
+        if (closed) {
+            return;
+        }
+
+        closed = true;
+
         RenderThread.assertCurrent();
 
-        LOGGER.debug("Destroying window");
-
-        if (window != NULL) {
-            glfwFreeCallbacks(window);
-            glfwDestroyWindow(window);
-            window = NULL;
+        try {
+            glfwWindow.close();
+        } finally {
+            glfwContext.close();
         }
     }
 }

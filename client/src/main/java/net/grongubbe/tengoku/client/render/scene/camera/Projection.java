@@ -4,4 +4,6 @@ import org.joml.Matrix4f;
 
 public interface Projection {
     Matrix4f matrix(Matrix4f destination);
+
+    void resize(int width, int height);
 }

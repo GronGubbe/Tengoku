@@ -33,4 +33,12 @@ public final class Camera {
     public void setProjection(Projection projection) {
         this.projection = Objects.requireNonNull(projection);
     }
+
+    public void resize(int width, int height) {
+        if (height <= 0) {
+            return;
+        }
+
+        projection.resize(width, height);
+    }
 }
