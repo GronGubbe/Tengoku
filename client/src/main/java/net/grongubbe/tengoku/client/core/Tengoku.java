@@ -2,10 +2,10 @@ package net.grongubbe.tengoku.client.core;
 
 import net.grongubbe.tengoku.client.asset.model.ModelKey;
 import net.grongubbe.tengoku.client.render.Window;
-import net.grongubbe.tengoku.client.render.scene.RenderObject;
-import net.grongubbe.tengoku.client.render.scene.RenderScene;
-import net.grongubbe.tengoku.client.render.scene.camera.Camera;
-import net.grongubbe.tengoku.client.render.scene.camera.projection.PerspectiveProjection;
+import net.grongubbe.tengoku.client.scene.RenderObject;
+import net.grongubbe.tengoku.client.scene.RenderScene;
+import net.grongubbe.tengoku.client.scene.camera.Camera;
+import net.grongubbe.tengoku.client.scene.camera.projection.PerspectiveProjection;
 import net.grongubbe.tengoku.client.util.Time;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +29,7 @@ public final class Tengoku implements AutoCloseable {
         window = new Window(1024, 512, "Tengoku", false, true);
 
         camera = new Camera(new PerspectiveProjection((float) Math.toRadians(70.0), (float) window.framebufferWidth() / window.framebufferHeight(), 0.1f, 1000.0f));
-        camera.transform().setPosition(0, 0, 4);
+        camera.transform().setPosition(0, 0, 5);
 
         window.setResizeCamera(camera);
 
@@ -39,6 +39,7 @@ public final class Tengoku implements AutoCloseable {
         time = new Time(20);
 
         RenderObject renderObject = new RenderObject(services.assets().get(new ModelKey(Path.of("models/cube.model.json"))));
+        renderObject.transform().setRotation(new Quaternionf().setAngleAxis((float) Math.toRadians(45), -1, 1, 1));
         scene.add(renderObject);
     }
 
@@ -58,8 +59,6 @@ public final class Tengoku implements AutoCloseable {
             }
 
             services.renderSystem().render(scene, camera);
-
-            scene.objects().getFirst().transform().rotate(new Quaternionf().setAngleAxis((float) Math.toRadians(1), 0, 1, 0));
 
             window.swapBuffers();
         }

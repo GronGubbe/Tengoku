@@ -46,12 +46,10 @@ public final class Time {
         accumulator -= fixedDelta;
     }
 
-    @SuppressWarnings("unused")
     public double alphaTime() {
         return Math.max(0.0, Math.min(1.0, accumulator / fixedDelta));
     }
 
-    @SuppressWarnings("unused")
     public double fixedDelta() {
         return fixedDelta;
     }

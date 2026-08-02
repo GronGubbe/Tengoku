@@ -4,9 +4,9 @@ import net.grongubbe.tengoku.client.gpu.upload.UploadQueue;
 import net.grongubbe.tengoku.client.render.frame.DrawCommandExtractor;
 import net.grongubbe.tengoku.client.render.frame.RenderFrame;
 import net.grongubbe.tengoku.client.render.frame.RenderView;
-import net.grongubbe.tengoku.client.render.scene.RenderObject;
-import net.grongubbe.tengoku.client.render.scene.RenderScene;
-import net.grongubbe.tengoku.client.render.scene.camera.Camera;
+import net.grongubbe.tengoku.client.scene.RenderObject;
+import net.grongubbe.tengoku.client.scene.RenderScene;
+import net.grongubbe.tengoku.client.scene.camera.Camera;
 
 public final class RenderSystem {
     private final UploadQueue uploadQueue;

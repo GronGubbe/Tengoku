@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.client.render.scene;
+package net.grongubbe.tengoku.client.scene;
 
 import net.grongubbe.tengoku.client.asset.model.Model;
 

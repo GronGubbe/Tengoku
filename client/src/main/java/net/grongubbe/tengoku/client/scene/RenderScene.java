@@ -1,4 +1,4 @@
-package net.grongubbe.tengoku.client.render.scene;
+package net.grongubbe.tengoku.client.scene;
 
 import java.util.ArrayList;
 import java.util.List;

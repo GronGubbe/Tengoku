@@ -5,7 +5,7 @@ import net.grongubbe.tengoku.client.gpu.GpuResourceManager;
 import net.grongubbe.tengoku.client.gpu.material.GpuMaterial;
 import net.grongubbe.tengoku.client.gpu.model.GpuModel;
 import net.grongubbe.tengoku.client.gpu.model.GpuModelPart;
-import net.grongubbe.tengoku.client.render.scene.RenderObject;
+import net.grongubbe.tengoku.client.scene.RenderObject;
 import org.joml.Matrix4f;
 
 import java.util.Objects;

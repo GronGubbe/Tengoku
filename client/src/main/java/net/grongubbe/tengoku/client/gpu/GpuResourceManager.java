@@ -39,7 +39,7 @@ public final class GpuResourceManager {
         CompletableFuture<? extends GpuResource> existing = cache.get(asset);
 
         if(existing != null) {
-            LOGGER.debug("Returning cached GPU resource for {}", asset);
+            LOGGER.trace("Returning cached GPU resource for {}", asset);
             return (CompletableFuture<G>) existing;
         }
 

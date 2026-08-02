@@ -3,7 +3,7 @@ package net.grongubbe.tengoku.client.render;
 import net.grongubbe.tengoku.client.platform.glfw.GLFWContext;
 import net.grongubbe.tengoku.client.platform.glfw.GLFWWindow;
 import net.grongubbe.tengoku.client.platform.opengl.OpenGLContext;
-import net.grongubbe.tengoku.client.render.scene.camera.Camera;
+import net.grongubbe.tengoku.client.scene.camera.Camera;
 
 public final class Window implements AutoCloseable {
     private int width;
