@@ -1,6 +1,7 @@
 package net.grongubbe.tengoku.client.core;
 
 import net.grongubbe.tengoku.client.asset.model.ModelKey;
+import net.grongubbe.tengoku.client.platform.glfw.GLFWContext;
 import net.grongubbe.tengoku.client.render.Window;
 import net.grongubbe.tengoku.client.render.scene.RenderObject;
 import net.grongubbe.tengoku.client.render.scene.RenderScene;
@@ -20,6 +21,7 @@ public final class Tengoku {
     private static final Logger LOGGER = LogManager.getLogger(Tengoku.class);
 
     private final ClientServices services;
+    private final GLFWContext glfwContext;
     private final Window window;
     private final Time time;
 
@@ -29,6 +31,7 @@ public final class Tengoku {
     public Tengoku() {
         LOGGER.info("Creating Tengoku instance");
 
+        glfwContext = new GLFWContext();
         window = new Window(1024, 512, "Tengoku", false, true);
 
         camera = new Camera(new PerspectiveProjection((float) Math.toRadians(70.0), (float) window.width() / window.height(), 0.1f, 1000.0f));
@@ -81,5 +84,6 @@ public final class Tengoku {
         services.gpuResources().cleanup();
 
         window.dispose();
+        glfwContext.close();
     }
 }
