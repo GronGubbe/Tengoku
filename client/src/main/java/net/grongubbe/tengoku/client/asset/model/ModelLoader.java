@@ -2,6 +2,8 @@ package net.grongubbe.tengoku.client.asset.model;
 
 import net.grongubbe.tengoku.client.asset.AssetLoader;
 import net.grongubbe.tengoku.client.asset.AssetLoadingContext;
+import net.grongubbe.tengoku.client.asset.bounds.BoundingCalculator;
+import net.grongubbe.tengoku.client.asset.bounds.BoundingVolume;
 import net.grongubbe.tengoku.client.asset.material.Material;
 import net.grongubbe.tengoku.client.asset.material.MaterialKey;
 import net.grongubbe.tengoku.client.asset.mesh.Mesh;
@@ -85,7 +87,9 @@ public final class ModelLoader implements AssetLoader<ModelKey, Model> {
                 parts.add(new ModelPart(mesh, materials));
             }
 
-            return new Model(key, parts);
+            BoundingVolume bounds = BoundingCalculator.calculate(parts);
+
+            return new Model(key, parts, bounds);
         }
     }
 }

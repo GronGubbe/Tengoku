@@ -38,4 +38,20 @@ public final class VertexLayout {
     public int stride() {
         return stride;
     }
+
+    public int attributeOffset(String name) {
+        Objects.requireNonNull(name, "Vertex attribute name cannot be null");
+
+        int offset = 0;
+
+        for (VertexAttribute attribute : attributes) {
+            if (attribute.name().equals(name)) {
+                return offset;
+            }
+
+            offset += attribute.type().bytes();
+        }
+
+        throw new IllegalArgumentException("Unknown vertex attribute: " + name);
+    }
 }

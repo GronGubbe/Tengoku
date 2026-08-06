@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class ObjMeshImporter implements MeshImporter {
-
     @Override
     public ImportedMesh importMesh(InputStream input) throws IOException {
         List<Position> positions = new ArrayList<>();

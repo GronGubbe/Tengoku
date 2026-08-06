@@ -7,6 +7,7 @@ import net.grongubbe.tengoku.client.scene.Entity;
 import net.grongubbe.tengoku.client.scene.World;
 import net.grongubbe.tengoku.client.scene.camera.Camera;
 import net.grongubbe.tengoku.client.scene.camera.projection.PerspectiveProjection;
+import net.grongubbe.tengoku.client.scene.components.BoundsComponent;
 import net.grongubbe.tengoku.client.scene.components.CameraComponent;
 import net.grongubbe.tengoku.client.scene.components.MeshRendererComponent;
 import net.grongubbe.tengoku.client.scene.components.TransformComponent;
@@ -63,6 +64,7 @@ public final class Tengoku implements AutoCloseable {
 
         world.add(cube, cubeTransform);
         world.add(cube, new MeshRendererComponent(model));
+        world.add(cube, new BoundsComponent(model.bounds()));
     }
 
     public void run() {

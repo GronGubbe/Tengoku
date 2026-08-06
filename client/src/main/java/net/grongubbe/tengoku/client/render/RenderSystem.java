@@ -6,7 +6,7 @@ import net.grongubbe.tengoku.client.render.frame.RenderFrame;
 import net.grongubbe.tengoku.client.render.frame.RenderView;
 import net.grongubbe.tengoku.client.scene.World;
 import net.grongubbe.tengoku.client.scene.camera.Camera;
-import net.grongubbe.tengoku.client.scene.components.BoundingVolumeComponent;
+import net.grongubbe.tengoku.client.scene.components.BoundsComponent;
 import net.grongubbe.tengoku.client.scene.components.CameraComponent;
 import net.grongubbe.tengoku.client.scene.components.MeshRendererComponent;
 import net.grongubbe.tengoku.client.scene.components.TransformComponent;
@@ -36,8 +36,14 @@ public final class RenderSystem {
 
         frame.addView(new RenderView(camera));
 
-        world.query(TransformComponent.class, MeshRendererComponent.class, BoundingVolumeComponent.class).forEach(view -> {
+        world.query(TransformComponent.class, MeshRendererComponent.class, BoundsComponent.class).forEach(view -> {
             TransformComponent transform = view.get(TransformComponent.class);
+            BoundsComponent boundsComponent = view.get(BoundsComponent.class);
+
+            if (!camera.frustum().intersects(boundsComponent.worldVolume(transform))) {
+                return;
+            }
+
             MeshRendererComponent renderer = view.get(MeshRendererComponent.class);
 
             extractor.extract(frame, transform, renderer);
