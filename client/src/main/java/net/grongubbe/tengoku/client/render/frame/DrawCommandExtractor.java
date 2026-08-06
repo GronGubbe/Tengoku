@@ -5,7 +5,8 @@ import net.grongubbe.tengoku.client.gpu.GpuResourceManager;
 import net.grongubbe.tengoku.client.gpu.material.GpuMaterial;
 import net.grongubbe.tengoku.client.gpu.model.GpuModel;
 import net.grongubbe.tengoku.client.gpu.model.GpuModelPart;
-import net.grongubbe.tengoku.client.scene.RenderObject;
+import net.grongubbe.tengoku.client.scene.components.MeshRendererComponent;
+import net.grongubbe.tengoku.client.scene.components.TransformComponent;
 import org.joml.Matrix4f;
 
 import java.util.Objects;
@@ -20,8 +21,8 @@ public final class DrawCommandExtractor {
         this.gpuResources = Objects.requireNonNull(gpuResources);
     }
 
-    public void extract(RenderFrame frame, RenderObject object) {
-        CompletableFuture<GpuModel> future = gpuResources.get(object.model());
+    public void extract(RenderFrame frame, TransformComponent transform, MeshRendererComponent render) {
+        CompletableFuture<GpuModel> future = gpuResources.get(render.model());
 
         if (!future.isDone()) {
             return;
@@ -29,7 +30,7 @@ public final class DrawCommandExtractor {
 
         GpuModel model = future.join();
 
-        object.transform().matrix(modelMatrix);
+        transform.matrix(modelMatrix);
 
         for (GpuModelPart part : model.parts()) {
             for (MeshSection section : part.mesh().subMeshes()) {

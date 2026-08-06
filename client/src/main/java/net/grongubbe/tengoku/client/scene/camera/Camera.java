@@ -1,12 +1,12 @@
 package net.grongubbe.tengoku.client.scene.camera;
 
-import net.grongubbe.tengoku.client.scene.Transform;
+import net.grongubbe.tengoku.client.scene.components.TransformComponent;
 import org.joml.Matrix4f;
 
 import java.util.Objects;
 
 public final class Camera {
-    private final Transform transform = new Transform();
+    private final TransformComponent transform = new TransformComponent();
 
     private Projection projection;
 
@@ -14,7 +14,7 @@ public final class Camera {
         this.projection = Objects.requireNonNull(projection);
     }
 
-    public Transform transform() {
+    public TransformComponent transform() {
         return transform;
     }
 
@@ -40,5 +40,6 @@ public final class Camera {
         }
 
         projection.resize(width, height);
+
     }
 }

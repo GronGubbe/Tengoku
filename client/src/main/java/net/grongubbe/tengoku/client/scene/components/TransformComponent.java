@@ -1,5 +1,6 @@
-package net.grongubbe.tengoku.client.scene;
+package net.grongubbe.tengoku.client.scene.components;
 
+import net.grongubbe.tengoku.client.scene.Component;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -7,10 +8,10 @@ import org.joml.Vector3fc;
 
 import java.util.Objects;
 
-public final class Transform {
+public final class TransformComponent implements Component {
     private final Vector3f position = new Vector3f();
     private final Quaternionf rotation = new Quaternionf();
-    private final Vector3f scale = new Vector3f(1.0f, 1.0f, 1.0f);
+    private final Vector3f scale = new Vector3f(1.0f);
 
     private final Matrix4f matrix = new Matrix4f();
 

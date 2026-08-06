@@ -4,9 +4,12 @@ import net.grongubbe.tengoku.client.gpu.upload.UploadQueue;
 import net.grongubbe.tengoku.client.render.frame.DrawCommandExtractor;
 import net.grongubbe.tengoku.client.render.frame.RenderFrame;
 import net.grongubbe.tengoku.client.render.frame.RenderView;
-import net.grongubbe.tengoku.client.scene.RenderObject;
-import net.grongubbe.tengoku.client.scene.RenderScene;
+import net.grongubbe.tengoku.client.scene.World;
 import net.grongubbe.tengoku.client.scene.camera.Camera;
+import net.grongubbe.tengoku.client.scene.components.BoundingVolumeComponent;
+import net.grongubbe.tengoku.client.scene.components.CameraComponent;
+import net.grongubbe.tengoku.client.scene.components.MeshRendererComponent;
+import net.grongubbe.tengoku.client.scene.components.TransformComponent;
 
 public final class RenderSystem {
     private final UploadQueue uploadQueue;
@@ -19,18 +22,26 @@ public final class RenderSystem {
         this.renderer = renderer;
     }
 
-    public void render(RenderScene scene, Camera camera) {
+    public void render(World world) {
         RenderThread.assertCurrent();
 
         uploadQueue.process();
 
         RenderFrame frame = new RenderFrame();
 
+        Camera camera = world.query(CameraComponent.class)
+                .findFirst()
+                .map(view -> view.get(CameraComponent.class).camera())
+                .orElseThrow(() -> new IllegalStateException("No camera found in world"));
+
         frame.addView(new RenderView(camera));
 
-        for (RenderObject object : scene.objects()) {
-            extractor.extract(frame, object);
-        }
+        world.query(TransformComponent.class, MeshRendererComponent.class, BoundingVolumeComponent.class).forEach(view -> {
+            TransformComponent transform = view.get(TransformComponent.class);
+            MeshRendererComponent renderer = view.get(MeshRendererComponent.class);
+
+            extractor.extract(frame, transform, renderer);
+        });
 
         renderer.render(frame);
     }
