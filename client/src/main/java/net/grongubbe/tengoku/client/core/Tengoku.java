@@ -14,7 +14,6 @@ import net.grongubbe.tengoku.client.scene.components.TransformComponent;
 import net.grongubbe.tengoku.client.util.Time;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joml.Quaternionf;
 
 import java.nio.file.Path;
 
@@ -26,8 +25,6 @@ public final class Tengoku implements AutoCloseable {
     private final Time time;
 
     private final World world;
-
-    private final TransformComponent cubeTransform;
 
     public Tengoku() {
         LOGGER.info("Creating Tengoku instance");
@@ -57,14 +54,38 @@ public final class Tengoku implements AutoCloseable {
         world.add(cameraEntity, new TransformComponent());
         world.add(cameraEntity, new CameraComponent(camera));
 
-        Model model = services.assets().get(new ModelKey(Path.of("models/cube.model.json")));
-        Entity cube = world.createEntity();
+        createTestScene();
+    }
 
-        cubeTransform = new TransformComponent();
+    private void createTestScene() {
+        Model model1 = services.assets().get(new ModelKey(Path.of("models/cube1.model.json")));
+        Model model2 = services.assets().get(new ModelKey(Path.of("models/cube2.model.json")));
+        Model model3 = services.assets().get(new ModelKey(Path.of("models/cube3.model.json")));
 
-        world.add(cube, cubeTransform);
-        world.add(cube, new MeshRendererComponent(model));
-        world.add(cube, new BoundsComponent(model.bounds()));
+        Entity cube1 = world.createEntity();
+        Entity cube2 = world.createEntity();
+        Entity cube3 = world.createEntity();
+
+        TransformComponent cube1Transform = new TransformComponent();
+        cube1Transform.setPosition(-1.5f, -1.5f, 0);
+
+        TransformComponent cube2Transform = new TransformComponent();
+        cube2Transform.setPosition(1.5f, -1.5f, 0);
+
+        TransformComponent cube3Transform = new TransformComponent();
+        cube3Transform.setPosition(0f, 1.5f, 0);
+
+        world.add(cube1, cube1Transform);
+        world.add(cube1, new MeshRendererComponent(model1));
+        world.add(cube1, new BoundsComponent(model1.bounds()));
+
+        world.add(cube2, cube2Transform);
+        world.add(cube2, new MeshRendererComponent(model2));
+        world.add(cube2, new BoundsComponent(model2.bounds()));
+
+        world.add(cube3, cube3Transform);
+        world.add(cube3, new MeshRendererComponent(model3));
+        world.add(cube3, new BoundsComponent(model3.bounds()));
     }
 
     public void run() {
@@ -81,8 +102,6 @@ public final class Tengoku implements AutoCloseable {
                 tick();
                 time.consumeUpdate();
             }
-
-            cubeTransform.rotate(new Quaternionf().setAngleAxis(Math.toRadians(1), 0, 1, 0));
 
             services.renderSystem().render(world);
 

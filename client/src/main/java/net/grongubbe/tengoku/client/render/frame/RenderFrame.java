@@ -1,19 +1,21 @@
 package net.grongubbe.tengoku.client.render.frame;
 
+import net.grongubbe.tengoku.client.render.queue.RenderQueue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public final class RenderFrame {
     private final List<RenderView> views = new ArrayList<>();
-    private final List<DrawCommand> commands = new ArrayList<>();
+    private final RenderQueue queue = new RenderQueue();
 
     public void addView(RenderView view) {
         views.add(view);
     }
 
     public void add(DrawCommand command) {
-        commands.add(command);
+        queue.add(command);
     }
 
     public List<RenderView> views() {
@@ -21,11 +23,6 @@ public final class RenderFrame {
     }
 
     public List<DrawCommand> commands() {
-        return Collections.unmodifiableList(commands);
-    }
-
-    public void clear() {
-        views.clear();
-        commands.clear();
+        return queue.commands();
     }
 }
