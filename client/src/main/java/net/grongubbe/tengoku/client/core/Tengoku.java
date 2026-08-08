@@ -7,13 +7,12 @@ import net.grongubbe.tengoku.client.scene.Entity;
 import net.grongubbe.tengoku.client.scene.World;
 import net.grongubbe.tengoku.client.scene.camera.Camera;
 import net.grongubbe.tengoku.client.scene.camera.projection.PerspectiveProjection;
-import net.grongubbe.tengoku.client.scene.components.BoundsComponent;
-import net.grongubbe.tengoku.client.scene.components.CameraComponent;
-import net.grongubbe.tengoku.client.scene.components.MeshRendererComponent;
-import net.grongubbe.tengoku.client.scene.components.TransformComponent;
+import net.grongubbe.tengoku.client.scene.components.*;
 import net.grongubbe.tengoku.client.util.Time;
+import net.grongubbe.tengoku.client.util.TransformUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Vector3f;
 
 import java.nio.file.Path;
 
@@ -24,6 +23,7 @@ public final class Tengoku implements AutoCloseable {
     private final Window window;
     private final Time time;
 
+    private final TransformComponent cameraTransform;
     private final World world;
 
     public Tengoku() {
@@ -44,14 +44,16 @@ public final class Tengoku implements AutoCloseable {
                 )
         );
 
-        camera.transform().setPosition(0, 0, 5);
         window.setResizeCamera(camera);
 
         world = new World();
 
         Entity cameraEntity = world.createEntity();
 
-        world.add(cameraEntity, new TransformComponent());
+        cameraTransform = new TransformComponent();
+        cameraTransform.setPosition(0, 0, 8);
+
+        world.add(cameraEntity, cameraTransform);
         world.add(cameraEntity, new CameraComponent(camera));
 
         createTestScene();
@@ -102,6 +104,9 @@ public final class Tengoku implements AutoCloseable {
                 tick();
                 time.consumeUpdate();
             }
+
+            TransformUtils.rotateAround(cameraTransform, new Vector3f(0, 0, 0), (float) Math.toRadians(1.0));
+            TransformUtils.lookAt(cameraTransform, new Vector3f(0, 0, 0));
 
             services.renderSystem().render(world);
 
