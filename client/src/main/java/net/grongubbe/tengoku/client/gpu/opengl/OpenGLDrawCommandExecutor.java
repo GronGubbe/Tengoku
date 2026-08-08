@@ -60,10 +60,7 @@ public final class OpenGLDrawCommandExecutor {
 
             renderLight.rotation(sunRotation);
 
-            sunDirection
-                    .set(0.0f, 0.0f, -1.0f)
-                    .rotate(sunRotation)
-                    .normalize();
+            sunDirection.set(0.0f, 0.0f, -1.0f).rotate(sunRotation).normalize();
 
             renderLight.light().color().get(sunColor);
             sunIntensity = renderLight.light().intensity();
