@@ -7,6 +7,7 @@ import net.grongubbe.tengoku.client.render.frame.RenderFrame;
 import net.grongubbe.tengoku.client.render.frame.RenderLight;
 import net.grongubbe.tengoku.client.render.frame.RenderView;
 import net.grongubbe.tengoku.client.scene.light.DirectionalLight;
+import net.grongubbe.tengoku.client.scene.light.PointLight;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -14,6 +15,7 @@ import org.joml.Vector3f;
 
 import java.util.Objects;
 
+import static net.grongubbe.tengoku.client.render.RenderingConstants.MAX_POINT_LIGHTS;
 import static org.lwjgl.opengl.GL11.*;
 
 public final class OpenGLDrawCommandExecutor {
@@ -36,9 +38,20 @@ public final class OpenGLDrawCommandExecutor {
 
     private final Quaternionf sunRotation = new Quaternionf();
 
+    private final Vector3f[] pointLightPositions = new Vector3f[MAX_POINT_LIGHTS];
+    private final Vector3f[] pointLightColors = new Vector3f[MAX_POINT_LIGHTS];
+    private final float[] pointLightRanges = new float[MAX_POINT_LIGHTS];
+
+    private int pointLightCount;
+
     public OpenGLDrawCommandExecutor(OpenGLMaterialBinder materialBinder, OpenGLMeshBinder meshBinder) {
         this.materialBinder = Objects.requireNonNull(materialBinder, "materialBinder");
         this.meshBinder = Objects.requireNonNull(meshBinder, "meshBinder");
+
+        for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+            pointLightPositions[i] = new Vector3f();
+            pointLightColors[i] = new Vector3f();
+        }
     }
 
     public void beginView(RenderView view, RenderFrame frame, Vector3f ambientColor, float ambientIntensity) {
@@ -53,19 +66,22 @@ public final class OpenGLDrawCommandExecutor {
         sunColor.zero();
         sunIntensity = 0.0f;
 
+        pointLightCount = 0;
+
         for (RenderLight renderLight : frame.lights()) {
-            if (!(renderLight.light() instanceof DirectionalLight)) {
+            if (renderLight.light() instanceof DirectionalLight) {
+                setSun(renderLight);
                 continue;
             }
 
-            renderLight.rotation(sunRotation);
+            if (renderLight.light() instanceof PointLight) {
+                if (pointLightCount >= MAX_POINT_LIGHTS) {
+                    throw new IllegalStateException("Exceeded maximum number of point lights: " + MAX_POINT_LIGHTS);
+                }
 
-            sunDirection.set(0.0f, 0.0f, -1.0f).rotate(sunRotation).normalize();
-
-            renderLight.light().color().get(sunColor);
-            sunIntensity = renderLight.light().intensity();
-
-            return;
+                setPointLight(pointLightCount, renderLight);
+                pointLightCount++;
+            }
         }
     }
 
@@ -98,6 +114,14 @@ public final class OpenGLDrawCommandExecutor {
         uniforms.setAmbientColor(ambientColor);
         uniforms.setAmbientIntensity(ambientIntensity);
 
+        uniforms.setPointLightCount(pointLightCount);
+
+        for (int i = 0; i < pointLightCount; i++) {
+            uniforms.setPointLightPosition(i, pointLightPositions[i]);
+            uniforms.setPointLightColor(i, pointLightColors[i]);
+            uniforms.setPointLightRange(i, pointLightRanges[i]);
+        }
+
         meshBinder.bind(command.mesh());
 
         try {
@@ -105,5 +129,27 @@ public final class OpenGLDrawCommandExecutor {
         } finally {
             meshBinder.unbind();
         }
+    }
+
+    private void setSun(RenderLight renderLight) {
+        DirectionalLight light = (DirectionalLight) renderLight.light();
+
+        renderLight.rotation(sunRotation);
+
+        sunDirection.set(0.0f, 0.0f, -1.0f).rotate(sunRotation).normalize();
+
+        light.color().get(sunColor);
+        sunIntensity = light.intensity();
+    }
+
+    private void setPointLight(int index, RenderLight renderLight) {
+        PointLight light = (PointLight) renderLight.light();
+
+        renderLight.position(pointLightPositions[index]);
+
+        light.color().get(pointLightColors[index]);
+        pointLightColors[index].mul(light.intensity());
+
+        pointLightRanges[index] = light.range();
     }
 }

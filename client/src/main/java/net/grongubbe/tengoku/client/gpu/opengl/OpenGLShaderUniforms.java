@@ -9,11 +9,8 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUniformMatrix3fv;
-import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import static net.grongubbe.tengoku.client.render.RenderingConstants.MAX_POINT_LIGHTS;
+import static org.lwjgl.opengl.GL20.*;
 
 public final class OpenGLShaderUniforms implements ShaderUniforms {
     private final int model;
@@ -29,6 +26,12 @@ public final class OpenGLShaderUniforms implements ShaderUniforms {
 
     private final int ambientColor;
     private final int ambientIntensity;
+
+    private final int pointLightCount;
+
+    private final int[] pointLightPositions;
+    private final int[] pointLightColors;
+    private final int[] pointLightRanges;
 
     private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
     private final FloatBuffer normalMatrixBuffer = BufferUtils.createFloatBuffer(9);
@@ -47,6 +50,18 @@ public final class OpenGLShaderUniforms implements ShaderUniforms {
 
         ambientColor = glGetUniformLocation(program, "ambientColor");
         ambientIntensity = glGetUniformLocation(program, "ambientIntensity");
+
+        pointLightCount = glGetUniformLocation(program, "pointLightCount");
+
+        pointLightPositions = new int[MAX_POINT_LIGHTS];
+        pointLightColors = new int[MAX_POINT_LIGHTS];
+        pointLightRanges = new int[MAX_POINT_LIGHTS];
+
+        for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+            pointLightPositions[i] = glGetUniformLocation(program, "pointLightPositions[" + i + "]");
+            pointLightColors[i] = glGetUniformLocation(program, "pointLightColors[" + i + "]");
+            pointLightRanges[i] = glGetUniformLocation(program, "pointLightRanges[" + i + "]");
+        }
     }
 
     @Override
@@ -108,17 +123,57 @@ public final class OpenGLShaderUniforms implements ShaderUniforms {
         upload(ambientIntensity, intensity);
     }
 
-    private void upload(int location, Matrix4f matrix) {
+    @Override
+    public void setPointLightCount(int count) {
+        if (count < 0 || count > MAX_POINT_LIGHTS) {
+            throw new IllegalArgumentException("Point light count must be between 0 and " + MAX_POINT_LIGHTS);
+        }
+
+        upload(pointLightCount, count);
+    }
+
+    @Override
+    public void setPointLightPosition(int index, Vector3f position) {
+        validatePointLightIndex(index);
+        upload(pointLightPositions[index], position);
+    }
+
+    @Override
+    public void setPointLightColor(int index, Vector3f color) {
+        validatePointLightIndex(index);
+        upload(pointLightColors[index], color);
+    }
+
+    @Override
+    public void setPointLightRange(int index, float range) {
+        validatePointLightIndex(index);
+        upload(pointLightRanges[index], range);
+    }
+
+    private void validatePointLightIndex(int index) {
+        if (index < 0 || index >= MAX_POINT_LIGHTS) {
+            throw new IllegalArgumentException("Point light index must be between 0 and " + (MAX_POINT_LIGHTS - 1));
+        }
+    }
+
+    private void upload(int location, int value) {
         RenderThread.assertCurrent();
 
         if (location == OpenGLUtils.invalidUniformLocation()) {
             return;
         }
 
-        matrixBuffer.clear();
-        matrix.get(matrixBuffer);
+        glUniform1i(location, value);
+    }
 
-        glUniformMatrix4fv(location, false, matrixBuffer);
+    private void upload(int location, float value) {
+        RenderThread.assertCurrent();
+
+        if (location == OpenGLUtils.invalidUniformLocation()) {
+            return;
+        }
+
+        glUniform1f(location, value);
     }
 
     private void upload(int location, Vector3f vector) {
@@ -131,13 +186,16 @@ public final class OpenGLShaderUniforms implements ShaderUniforms {
         glUniform3f(location, vector.x, vector.y, vector.z);
     }
 
-    private void upload(int location, float value) {
+    private void upload(int location, Matrix4f matrix) {
         RenderThread.assertCurrent();
 
         if (location == OpenGLUtils.invalidUniformLocation()) {
             return;
         }
 
-        glUniform1f(location, value);
+        matrixBuffer.clear();
+        matrix.get(matrixBuffer);
+
+        glUniformMatrix4fv(location, false, matrixBuffer);
     }
 }

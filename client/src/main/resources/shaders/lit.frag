@@ -1,8 +1,8 @@
 #version 460
 
-in vec2 fragmentUv;
 in vec3 fragmentPosition;
 in vec3 fragmentNormal;
+in vec2 fragmentUv;
 
 uniform sampler2D albedo;
 uniform vec4 tint;
@@ -16,28 +16,54 @@ uniform float sunIntensity;
 uniform vec3 ambientColor;
 uniform float ambientIntensity;
 
+const int MAX_POINT_LIGHTS = 16;
+
+uniform int pointLightCount;
+uniform vec3 pointLightPositions[MAX_POINT_LIGHTS];
+uniform vec3 pointLightColors[MAX_POINT_LIGHTS];
+uniform float pointLightRanges[MAX_POINT_LIGHTS];
+
 out vec4 color;
 
 void main() {
     vec3 albedoColor = texture(albedo, fragmentUv).rgb * tint.rgb;
 
-    vec3 normal = normalize(fragmentNormal);
-    vec3 lightDirection = normalize(-sunDirection);
     vec3 viewDirection = normalize(cameraPosition - fragmentPosition);
-    vec3 halfDirection = normalize(lightDirection + viewDirection);
+    vec3 normal = normalize(fragmentNormal);
+
+    vec3 lighting = ambientColor * ambientIntensity;
+
+    vec3 lightDirection = normalize(-sunDirection);
 
     float diffuse = max(dot(normal, lightDirection), 0.0);
-    float specular = 0.0;
 
-    if (diffuse > 0.0) {
-        specular = pow(max(dot(normal, halfDirection), 0.0), 32.0);
+    vec3 halfDirection = normalize(lightDirection + viewDirection);
+    float specular = pow(max(dot(normal, halfDirection), 0.0), 32.0);
+
+    lighting += sunColor * sunIntensity * (diffuse + specular);
+
+    for (int i = 0; i < pointLightCount; i++) {
+        vec3 toPointLight = pointLightPositions[i] - fragmentPosition;
+        float distanceToPointLight = length(toPointLight);
+
+        if (distanceToPointLight >= pointLightRanges[i]) {
+            continue;
+        }
+
+        vec3 pointDirection = toPointLight / distanceToPointLight;
+
+        float attenuation = 1.0 - distanceToPointLight / pointLightRanges[i];
+        attenuation *= attenuation;
+
+        float pointDiffuse = max(dot(normal, pointDirection), 0.0);
+
+        vec3 pointHalfDirection = normalize(pointDirection + viewDirection);
+        float pointSpecular = pow(max(dot(normal, pointHalfDirection), 0.0), 32.0);
+
+        lighting += pointLightColors[i]
+        * attenuation
+        * (pointDiffuse + pointSpecular);
     }
 
-    vec3 ambient = albedoColor * ambientColor * ambientIntensity;
-    vec3 diffuseLight = albedoColor * sunColor * sunIntensity * diffuse;
-    vec3 specularLight = sunColor * sunIntensity * specular;
-
-    vec3 lighting = ambient + diffuseLight + specularLight;
-
-    color = vec4(lighting, tint.a);
+    color = vec4(albedoColor * lighting, tint.a);
 }

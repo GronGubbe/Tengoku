@@ -9,6 +9,7 @@ import net.grongubbe.tengoku.client.scene.camera.Camera;
 import net.grongubbe.tengoku.client.scene.camera.projection.PerspectiveProjection;
 import net.grongubbe.tengoku.client.scene.components.*;
 import net.grongubbe.tengoku.client.scene.light.DirectionalLight;
+import net.grongubbe.tengoku.client.scene.light.PointLight;
 import net.grongubbe.tengoku.client.util.Time;
 import net.grongubbe.tengoku.client.util.TransformUtils;
 import org.apache.logging.log4j.LogManager;
@@ -62,38 +63,27 @@ public final class Tengoku implements AutoCloseable {
     }
 
     private void createTestScene() {
-        Model model1 = services.assets().get(new ModelKey(Path.of("models/cube1.model.json")));
-        Model model2 = services.assets().get(new ModelKey(Path.of("models/cube2.model.json")));
-        Model model3 = services.assets().get(new ModelKey(Path.of("models/cube3.model.json")));
+        Model model = services.assets().get(new ModelKey(Path.of("models/suzanne.model.json")));
 
-        Entity cube1 = world.createEntity();
-        Entity cube2 = world.createEntity();
-        Entity cube3 = world.createEntity();
+        Entity entity = world.createEntity();
 
-        TransformComponent cube1Transform = new TransformComponent();
-        cube1Transform.setPosition(-1.5f, -1.5f, 0);
+        TransformComponent transform = new TransformComponent();
+        transform.setScale(2.0f);
 
-        TransformComponent cube2Transform = new TransformComponent();
-        cube2Transform.setPosition(1.5f, -1.5f, 0);
+        world.add(entity, transform);
+        world.add(entity, new MeshRendererComponent(model));
+        world.add(entity, new BoundsComponent(model.bounds()));
 
-        TransformComponent cube3Transform = new TransformComponent();
-        cube3Transform.setPosition(0f, 1.5f, 0);
+        createSun();
 
-        world.add(cube1, cube1Transform);
-        world.add(cube1, new MeshRendererComponent(model1));
-        world.add(cube1, new BoundsComponent(model1.bounds()));
+        createPointLight(new Vector3f(-5.0f, 1.0f, 0.0f), new Vector3f(1.0f, 0.15f, 0.05f));
+        createPointLight(new Vector3f(5.0f, 1.0f, 0.0f), new Vector3f(0.1f, 0.3f, 1.0f));
+    }
 
-        world.add(cube2, cube2Transform);
-        world.add(cube2, new MeshRendererComponent(model2));
-        world.add(cube2, new BoundsComponent(model2.bounds()));
-
-        world.add(cube3, cube3Transform);
-        world.add(cube3, new MeshRendererComponent(model3));
-        world.add(cube3, new BoundsComponent(model3.bounds()));
-
+    private void createSun() {
         DirectionalLight sun = new DirectionalLight();
         sun.setColor(new Vector3f(1.0f, 0.95f, 0.85f));
-        sun.setIntensity(2.0f);
+        sun.setIntensity(0.5f);
 
         Entity sunEntity = world.createEntity();
 
@@ -102,6 +92,21 @@ public final class Tengoku implements AutoCloseable {
 
         world.add(sunEntity, sunTransform);
         world.add(sunEntity, new LightComponent(sun));
+    }
+
+    private void createPointLight(Vector3f position, Vector3f color) {
+        Entity pointLightEntity = world.createEntity();
+
+        PointLight pointLight = new PointLight();
+        pointLight.setColor(color);
+        pointLight.setIntensity(12.0f);
+        pointLight.setRange(8.0f);
+
+        TransformComponent pointLightTransform = new TransformComponent();
+        pointLightTransform.setPosition(position.x, position.y, position.z);
+
+        world.add(pointLightEntity, pointLightTransform);
+        world.add(pointLightEntity, new LightComponent(pointLight));
     }
 
     public void run() {
@@ -119,9 +124,6 @@ public final class Tengoku implements AutoCloseable {
                 time.consumeUpdate();
             }
 
-            TransformUtils.rotateAround(cameraTransform, new Vector3f(0, 0, 0), (float) Math.toRadians(1.0));
-            TransformUtils.lookAt(cameraTransform, new Vector3f(0, 0, 0));
-
             services.renderSystem().render(world);
 
             window.swapBuffers();
@@ -134,6 +136,9 @@ public final class Tengoku implements AutoCloseable {
         LOGGER.trace("Tick");
 
         window.setWindowTitle("Tengoku " + time.fps());
+
+        TransformUtils.rotateAround(cameraTransform, new Vector3f(0, 0, 0), (float) time.fixedDelta());
+        TransformUtils.lookAt(cameraTransform, new Vector3f(0, 0, 0));
     }
 
     @Override

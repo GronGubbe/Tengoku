@@ -4,10 +4,11 @@ import net.grongubbe.tengoku.client.gpu.opengl.OpenGLDrawCommandExecutor;
 import net.grongubbe.tengoku.client.render.frame.DrawCommand;
 import net.grongubbe.tengoku.client.render.frame.RenderFrame;
 import net.grongubbe.tengoku.client.render.frame.RenderView;
-import org.joml.Vector3f;
 
 import java.util.Objects;
 
+import static net.grongubbe.tengoku.client.render.RenderingConstants.AMBIENT_COLOR;
+import static net.grongubbe.tengoku.client.render.RenderingConstants.AMBIENT_INTENSITY;
 import static org.lwjgl.opengl.GL11.*;
 
 public final class Renderer {
@@ -34,7 +35,7 @@ public final class Renderer {
     }
 
     private void beginView(RenderView view, RenderFrame frame) {
-        drawExecutor.beginView(view, frame, new Vector3f(1f), 0.2f);
+        drawExecutor.beginView(view, frame, AMBIENT_COLOR, AMBIENT_INTENSITY);
     }
 
     private void endView() {

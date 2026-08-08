@@ -24,4 +24,12 @@ public interface ShaderUniforms {
     void setAmbientColor(Vector3f color);
 
     void setAmbientIntensity(float intensity);
+
+    void setPointLightCount(int count);
+
+    void setPointLightPosition(int index, Vector3f position);
+
+    void setPointLightColor(int index, Vector3f color);
+
+    void setPointLightRange(int index, float range);
 }
