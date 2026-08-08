@@ -1,9 +1,9 @@
 {
   "parts": [
     {
-      "mesh": "meshes/cube.mesh.json",
+      "mesh": "meshes/monkey_head.mesh.json",
       "materials": [
-        "materials/checker.material.json"
+        "materials/lit.material.json"
       ]
     }
   ]

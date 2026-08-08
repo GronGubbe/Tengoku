@@ -3,7 +3,7 @@
     {
       "mesh": "meshes/cube.mesh.json",
       "materials": [
-        "materials/white.material.json"
+        "materials/lit_red.material.json"
       ]
     }
   ]

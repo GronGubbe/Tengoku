@@ -33,6 +33,7 @@ import net.grongubbe.tengoku.client.gpu.upload.UploadQueue;
 import net.grongubbe.tengoku.client.render.RenderSystem;
 import net.grongubbe.tengoku.client.render.Renderer;
 import net.grongubbe.tengoku.client.render.frame.DrawCommandExtractor;
+import net.grongubbe.tengoku.client.render.frame.LightExtractor;
 
 public final class ClientServices {
     private final AssetLoaderRegistry assetLoaderRegistry;
@@ -58,8 +59,9 @@ public final class ClientServices {
         this.assetManager = new AssetManager(assetCache, assetLoaderRegistry);
 
         DrawCommandExtractor drawCommandExtractor = new DrawCommandExtractor(gpuResourceManager);
+        LightExtractor lightExtractor = new LightExtractor();
 
-        this.renderSystem = new RenderSystem(uploadQueue, drawCommandExtractor, renderer);
+        this.renderSystem = new RenderSystem(uploadQueue, drawCommandExtractor, lightExtractor, renderer);
     }
 
     public void initialize() {

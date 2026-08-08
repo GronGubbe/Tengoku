@@ -8,10 +8,12 @@ import net.grongubbe.tengoku.client.scene.World;
 import net.grongubbe.tengoku.client.scene.camera.Camera;
 import net.grongubbe.tengoku.client.scene.camera.projection.PerspectiveProjection;
 import net.grongubbe.tengoku.client.scene.components.*;
+import net.grongubbe.tengoku.client.scene.light.DirectionalLight;
 import net.grongubbe.tengoku.client.util.Time;
 import net.grongubbe.tengoku.client.util.TransformUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.nio.file.Path;
@@ -88,6 +90,18 @@ public final class Tengoku implements AutoCloseable {
         world.add(cube3, cube3Transform);
         world.add(cube3, new MeshRendererComponent(model3));
         world.add(cube3, new BoundsComponent(model3.bounds()));
+
+        DirectionalLight sun = new DirectionalLight();
+        sun.setColor(new Vector3f(1.0f, 0.95f, 0.85f));
+        sun.setIntensity(2.0f);
+
+        Entity sunEntity = world.createEntity();
+
+        TransformComponent sunTransform = new TransformComponent();
+        sunTransform.setRotation(new Quaternionf().rotateXYZ((float) Math.toRadians(-45.0), (float) Math.toRadians(-30.0), 0.0f));
+
+        world.add(sunEntity, sunTransform);
+        world.add(sunEntity, new LightComponent(sun));
     }
 
     public void run() {
