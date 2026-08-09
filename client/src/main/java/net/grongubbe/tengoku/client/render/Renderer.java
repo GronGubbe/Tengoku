@@ -1,43 +1,72 @@
 package net.grongubbe.tengoku.client.render;
 
-import net.grongubbe.tengoku.client.gpu.opengl.OpenGLDrawCommandExecutor;
-import net.grongubbe.tengoku.client.render.frame.DrawCommand;
 import net.grongubbe.tengoku.client.render.frame.RenderFrame;
-import net.grongubbe.tengoku.client.render.frame.RenderView;
+import net.grongubbe.tengoku.client.render.pass.LightingPass;
+import net.grongubbe.tengoku.client.render.pass.RenderPass;
+import net.grongubbe.tengoku.client.render.pass.ShadowPass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
-import static net.grongubbe.tengoku.client.render.RenderingConstants.AMBIENT_COLOR;
-import static net.grongubbe.tengoku.client.render.RenderingConstants.AMBIENT_INTENSITY;
 import static org.lwjgl.opengl.GL11.*;
 
 public final class Renderer {
-    private final OpenGLDrawCommandExecutor drawExecutor;
+    private static final Logger LOGGER = LogManager.getLogger(Renderer.class);
 
-    public Renderer(OpenGLDrawCommandExecutor drawExecutor) {
-        this.drawExecutor = Objects.requireNonNull(drawExecutor, "drawExecutor");
+    private final ShadowPass shadowPass;
+    private final LightingPass lightingPass;
+
+    public Renderer(ShadowPass shadowPass, LightingPass lightingPass) {
+        this.shadowPass = Objects.requireNonNull(shadowPass, "shadowPass");
+        this.lightingPass = Objects.requireNonNull(lightingPass, "lightingPass");
     }
 
-    public void render(RenderFrame frame) {
+    public void render(RenderFrame frame, int framebufferWidth, int framebufferHeight) {
         RenderThread.assertCurrent();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (RenderView view : frame.views()) {
-            beginView(view, frame);
+        execute(shadowPass, frame);
 
-            for (DrawCommand command : frame.commands()) {
-                drawExecutor.draw(command, view);
-            }
-
-            endView();
+        if (shadowPass.hasShadow()) {
+            lightingPass.setShadow(shadowPass.shadowMap(), shadowPass.shadowView());
+        } else {
+            lightingPass.clearShadow();
         }
+
+        lightingPass.setViewport(framebufferWidth, framebufferHeight);
+        execute(lightingPass, frame);
     }
 
-    private void beginView(RenderView view, RenderFrame frame) {
-        drawExecutor.beginView(view, frame, AMBIENT_COLOR, AMBIENT_INTENSITY);
-    }
+    private void execute(RenderPass pass, RenderFrame frame) {
+        LOGGER.trace("Executing render pass: {}", pass.name());
 
-    private void endView() {
+        boolean started = false;
+        boolean successful = false;
+
+        try {
+            pass.begin();
+            started = true;
+
+            pass.execute(frame);
+            successful = true;
+        } catch (RuntimeException exception) {
+            LOGGER.error("Render pass failed: {}", pass.name(), exception);
+        } finally {
+            if (started) {
+                try {
+                    pass.end();
+                } catch (RuntimeException exception) {
+                    LOGGER.error("Render pass cleanup failed: {}", pass.name(), exception);
+
+                    successful = false;
+                }
+            }
+        }
+
+        if (successful) {
+            LOGGER.trace("Completed render pass: {}", pass.name());
+        }
     }
 }

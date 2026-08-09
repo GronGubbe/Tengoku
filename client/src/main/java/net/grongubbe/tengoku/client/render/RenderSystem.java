@@ -24,7 +24,7 @@ public final class RenderSystem {
         this.renderer = renderer;
     }
 
-    public void render(World world) {
+    public void render(World world, int framebufferWidth, int framebufferHeight) {
         RenderThread.assertCurrent();
 
         uploadQueue.process();
@@ -62,6 +62,6 @@ public final class RenderSystem {
             extractor.extract(frame, transform, renderer);
         });
 
-        renderer.render(frame);
+        renderer.render(frame, framebufferWidth, framebufferHeight);
     }
 }

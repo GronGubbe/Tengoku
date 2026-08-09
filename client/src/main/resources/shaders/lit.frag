@@ -16,7 +16,12 @@ uniform float sunIntensity;
 uniform vec3 ambientColor;
 uniform float ambientIntensity;
 
+uniform sampler2DShadow shadowMap;
+uniform mat4 shadowView;
+uniform mat4 shadowProjection;
+
 const int MAX_POINT_LIGHTS = 16;
+const float SHADOW_BIAS = 0.0015;
 
 uniform int pointLightCount;
 uniform vec3 pointLightPositions[MAX_POINT_LIGHTS];
@@ -29,6 +34,7 @@ void main() {
     vec3 albedoColor = texture(albedo, fragmentUv).rgb * tint.rgb;
 
     vec3 viewDirection = normalize(cameraPosition - fragmentPosition);
+
     vec3 normal = normalize(fragmentNormal);
 
     vec3 lighting = ambientColor * ambientIntensity;
@@ -40,7 +46,19 @@ void main() {
     vec3 halfDirection = normalize(lightDirection + viewDirection);
     float specular = pow(max(dot(normal, halfDirection), 0.0), 32.0);
 
-    lighting += sunColor * sunIntensity * (diffuse + specular);
+    float shadow = 1.0;
+
+    vec4 shadowPosition = shadowProjection * shadowView * vec4(fragmentPosition, 1.0);
+
+    shadowPosition.xyz /= shadowPosition.w;
+
+    vec3 shadowCoordinates = shadowPosition.xyz * 0.5 + 0.5;
+
+    shadowCoordinates.z -= SHADOW_BIAS;
+
+    shadow = texture(shadowMap, shadowCoordinates);
+
+    lighting += sunColor * sunIntensity * (diffuse + specular) * shadow;
 
     for (int i = 0; i < pointLightCount; i++) {
         vec3 toPointLight = pointLightPositions[i] - fragmentPosition;
@@ -60,9 +78,7 @@ void main() {
         vec3 pointHalfDirection = normalize(pointDirection + viewDirection);
         float pointSpecular = pow(max(dot(normal, pointHalfDirection), 0.0), 32.0);
 
-        lighting += pointLightColors[i]
-        * attenuation
-        * (pointDiffuse + pointSpecular);
+        lighting += pointLightColors[i] * attenuation * (pointDiffuse + pointSpecular);
     }
 
     color = vec4(albedoColor * lighting, tint.a);

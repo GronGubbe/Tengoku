@@ -34,43 +34,39 @@ import net.grongubbe.tengoku.client.render.RenderSystem;
 import net.grongubbe.tengoku.client.render.Renderer;
 import net.grongubbe.tengoku.client.render.frame.DrawCommandExtractor;
 import net.grongubbe.tengoku.client.render.frame.LightExtractor;
+import net.grongubbe.tengoku.client.render.pass.LightingPass;
+import net.grongubbe.tengoku.client.render.pass.ShadowPass;
 
 public final class ClientServices {
     private final AssetLoaderRegistry assetLoaderRegistry;
     private final GpuUploaderRegistry gpuUploaderRegistry;
 
+    private final UploadQueue uploadQueue;
     private final GpuResourceManager gpuResourceManager;
     private final AssetManager assetManager;
 
-    private final RenderSystem renderSystem;
+    private RenderSystem renderSystem;
 
     public ClientServices() {
         this.assetLoaderRegistry = new AssetLoaderRegistry();
         this.gpuUploaderRegistry = new GpuUploaderRegistry();
 
-        UploadQueue uploadQueue = new UploadQueue();
+        this.uploadQueue = new UploadQueue();
         AssetCache assetCache = new AssetCache();
-        OpenGLMaterialBinder materialBinder = new OpenGLMaterialBinder();
-        OpenGLMeshBinder meshBinder = new OpenGLMeshBinder();
-        OpenGLDrawCommandExecutor drawExecutor = new OpenGLDrawCommandExecutor(materialBinder, meshBinder);
-        Renderer renderer = new Renderer(drawExecutor);
 
         this.gpuResourceManager = new GpuResourceManager(uploadQueue, gpuUploaderRegistry);
         this.assetManager = new AssetManager(assetCache, assetLoaderRegistry);
-
-        DrawCommandExtractor drawCommandExtractor = new DrawCommandExtractor(gpuResourceManager);
-        LightExtractor lightExtractor = new LightExtractor();
-
-        this.renderSystem = new RenderSystem(uploadQueue, drawCommandExtractor, lightExtractor, renderer);
     }
 
     public void initialize() {
         registerAssetLoaders();
         registerGpuUploaders();
+        createRenderSystem();
     }
 
     private void registerAssetLoaders() {
         ObjectMapper mapper = new ObjectMapper();
+
         assetLoaderRegistry.register(TextureKey.class, new TextureLoader(new TextureDeserializer(mapper), new StbImageDecoder()));
         assetLoaderRegistry.register(MeshKey.class, new MeshLoader(new MeshDeserializer(mapper), new ObjMeshImporter()));
         assetLoaderRegistry.register(ShaderKey.class, new ShaderLoader(new ShaderDeserializer(mapper)));
@@ -84,6 +80,22 @@ public final class ClientServices {
         gpuUploaderRegistry.register(Shader.class, new OpenGLShaderUploader());
         gpuUploaderRegistry.register(Material.class, new OpenGLMaterialUploader());
         gpuUploaderRegistry.register(Model.class, new OpenGLModelUploader());
+    }
+
+    private void createRenderSystem() {
+        OpenGLMaterialBinder materialBinder = new OpenGLMaterialBinder();
+        OpenGLMeshBinder meshBinder = new OpenGLMeshBinder();
+        OpenGLDrawCommandExecutor drawExecutor = new OpenGLDrawCommandExecutor(materialBinder, meshBinder);
+
+        ShadowPass shadowPass = new ShadowPass(assetManager, gpuResourceManager, meshBinder);
+        LightingPass lightingPass = new LightingPass(drawExecutor);
+
+        Renderer renderer = new Renderer(shadowPass, lightingPass);
+
+        DrawCommandExtractor drawCommandExtractor = new DrawCommandExtractor(gpuResourceManager);
+        LightExtractor lightExtractor = new LightExtractor();
+
+        this.renderSystem = new RenderSystem(uploadQueue, drawCommandExtractor, lightExtractor, renderer);
     }
 
     public GpuResourceManager gpuResources() {

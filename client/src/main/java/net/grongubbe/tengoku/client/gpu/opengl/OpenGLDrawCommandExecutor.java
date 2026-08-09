@@ -2,10 +2,7 @@ package net.grongubbe.tengoku.client.gpu.opengl;
 
 import net.grongubbe.tengoku.client.gpu.shader.ShaderUniforms;
 import net.grongubbe.tengoku.client.render.RenderThread;
-import net.grongubbe.tengoku.client.render.frame.DrawCommand;
-import net.grongubbe.tengoku.client.render.frame.RenderFrame;
-import net.grongubbe.tengoku.client.render.frame.RenderLight;
-import net.grongubbe.tengoku.client.render.frame.RenderView;
+import net.grongubbe.tengoku.client.render.frame.*;
 import net.grongubbe.tengoku.client.scene.light.DirectionalLight;
 import net.grongubbe.tengoku.client.scene.light.PointLight;
 import org.joml.Matrix3f;
@@ -17,8 +14,12 @@ import java.util.Objects;
 
 import static net.grongubbe.tengoku.client.render.RenderingConstants.MAX_POINT_LIGHTS;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public final class OpenGLDrawCommandExecutor {
+    private static final int SHADOW_TEXTURE_UNIT = 7;
+
     private final OpenGLMaterialBinder materialBinder;
     private final OpenGLMeshBinder meshBinder;
 
@@ -28,13 +29,16 @@ public final class OpenGLDrawCommandExecutor {
 
     private final Matrix3f normalMatrix = new Matrix3f();
 
+    private final Matrix4f shadowViewMatrix = new Matrix4f();
+    private final Matrix4f shadowProjectionMatrix = new Matrix4f();
+
     private final Vector3f cameraPosition = new Vector3f();
     private final Vector3f sunDirection = new Vector3f();
     private final Vector3f sunColor = new Vector3f();
     private float sunIntensity;
 
     private final Vector3f ambientColor = new Vector3f();
-    private float ambientIntensity = 0.0f;
+    private float ambientIntensity;
 
     private final Quaternionf sunRotation = new Quaternionf();
 
@@ -44,9 +48,19 @@ public final class OpenGLDrawCommandExecutor {
 
     private int pointLightCount;
 
-    public OpenGLDrawCommandExecutor(OpenGLMaterialBinder materialBinder, OpenGLMeshBinder meshBinder) {
-        this.materialBinder = Objects.requireNonNull(materialBinder, "materialBinder");
-        this.meshBinder = Objects.requireNonNull(meshBinder, "meshBinder");
+    public OpenGLDrawCommandExecutor(
+            OpenGLMaterialBinder materialBinder,
+            OpenGLMeshBinder meshBinder
+    ) {
+        this.materialBinder = Objects.requireNonNull(
+                materialBinder,
+                "materialBinder"
+        );
+
+        this.meshBinder = Objects.requireNonNull(
+                meshBinder,
+                "meshBinder"
+        );
 
         for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
             pointLightPositions[i] = new Vector3f();
@@ -85,7 +99,7 @@ public final class OpenGLDrawCommandExecutor {
         }
     }
 
-    public void draw(DrawCommand command, RenderView view) {
+    public void draw(DrawCommand command, RenderView view, DirectionalShadowMap shadowMap, ShadowView shadowView) {
         RenderThread.assertCurrent();
 
         ShaderUniforms uniforms = command.material().shader().uniforms();
@@ -103,8 +117,8 @@ public final class OpenGLDrawCommandExecutor {
         uniforms.setProjection(projectionMatrix);
 
         normalMatrix.set(modelMatrix).normal();
-
         uniforms.setNormalMatrix(normalMatrix);
+
         uniforms.setCameraPosition(cameraPosition);
 
         uniforms.setSunDirection(sunDirection);
@@ -122,13 +136,40 @@ public final class OpenGLDrawCommandExecutor {
             uniforms.setPointLightRange(i, pointLightRanges[i]);
         }
 
+        if (shadowMap != null && shadowView != null) {
+            bindShadow(shadowMap, shadowView, uniforms);
+        }
+
         meshBinder.bind(command.mesh());
 
         try {
-            glDrawElements(GL_TRIANGLES, command.indexCount(), GL_UNSIGNED_INT, (long) command.indexOffset() * Integer.BYTES);
+            glDrawElements(
+                    GL_TRIANGLES,
+                    command.indexCount(),
+                    GL_UNSIGNED_INT,
+                    (long) command.indexOffset() * Integer.BYTES
+            );
         } finally {
             meshBinder.unbind();
+            unbindShadow();
         }
+    }
+
+    private void bindShadow(DirectionalShadowMap shadowMap, ShadowView shadowView, ShaderUniforms uniforms) {
+        glActiveTexture(GL_TEXTURE0 + SHADOW_TEXTURE_UNIT);
+        glBindTexture(GL_TEXTURE_2D, shadowMap.depthTexture());
+
+        shadowView.view(shadowViewMatrix);
+        shadowView.projection(shadowProjectionMatrix);
+
+        uniforms.setShadowMap(SHADOW_TEXTURE_UNIT);
+        uniforms.setShadowView(shadowViewMatrix);
+        uniforms.setShadowProjection(shadowProjectionMatrix);
+    }
+
+    private void unbindShadow() {
+        glActiveTexture(GL_TEXTURE0 + SHADOW_TEXTURE_UNIT);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     private void setSun(RenderLight renderLight) {
@@ -148,6 +189,7 @@ public final class OpenGLDrawCommandExecutor {
         renderLight.position(pointLightPositions[index]);
 
         light.color().get(pointLightColors[index]);
+
         pointLightColors[index].mul(light.intensity());
 
         pointLightRanges[index] = light.range();

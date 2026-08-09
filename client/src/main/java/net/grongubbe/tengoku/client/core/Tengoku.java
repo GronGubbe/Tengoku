@@ -41,7 +41,7 @@ public final class Tengoku implements AutoCloseable {
 
         Camera camera = new Camera(
                 new PerspectiveProjection(
-                        (float) Math.toRadians(70.0),
+                        (float) Math.toRadians(50.0),
                         (float) window.framebufferWidth() / window.framebufferHeight(),
                         0.1f, 1000.0f
                 )
@@ -54,7 +54,8 @@ public final class Tengoku implements AutoCloseable {
         Entity cameraEntity = world.createEntity();
 
         cameraTransform = new TransformComponent();
-        cameraTransform.setPosition(0, 0, 8);
+        cameraTransform.setPosition(8.0f, 4.0f, 10.0f);
+        TransformUtils.lookAt(cameraTransform, new Vector3f(0.0f));
 
         world.add(cameraEntity, cameraTransform);
         world.add(cameraEntity, new CameraComponent(camera));
@@ -63,35 +64,75 @@ public final class Tengoku implements AutoCloseable {
     }
 
     private void createTestScene() {
-        Model model = services.assets().get(new ModelKey(Path.of("models/suzanne.model.json")));
+        Model suzanne = services.assets().get(new ModelKey(Path.of("models/suzanne.model.json")));
+        Model cube = services.assets().get(new ModelKey(Path.of("models/cube.model.json")));
 
+        createGround(cube);
+        createSuzanne(suzanne);
+        createShadowCaster(cube);
+
+        createSun();
+
+//        createPointLight(new Vector3f(-5.0f, 1.0f, 0.0f), new Vector3f(1.0f, 0.15f, 0.05f));
+//        createPointLight(new Vector3f(5.0f, 1.0f, 0.0f), new Vector3f(0.1f, 0.3f, 1.0f));
+    }
+
+    private void createGround(Model cube) {
         Entity entity = world.createEntity();
 
         TransformComponent transform = new TransformComponent();
-        transform.setScale(2.0f);
+        transform.setPosition(0.0f, -1.5f, 0.0f);
+        transform.setScale(8.0f, 0.5f, 8.0f);
+
+        world.add(entity, transform);
+        world.add(entity, new MeshRendererComponent(cube));
+        world.add(entity, new BoundsComponent(cube.bounds()));
+    }
+
+    private void createSuzanne(Model model) {
+        Entity entity = world.createEntity();
+
+        TransformComponent transform = new TransformComponent();
+        transform.setPosition(0.0f, 0.5f, 0.0f);
+        transform.setScale(1.0f);
 
         world.add(entity, transform);
         world.add(entity, new MeshRendererComponent(model));
         world.add(entity, new BoundsComponent(model.bounds()));
+    }
 
-        createSun();
+    private void createShadowCaster(Model cube) {
+        Entity entity = world.createEntity();
 
-        createPointLight(new Vector3f(-5.0f, 1.0f, 0.0f), new Vector3f(1.0f, 0.15f, 0.05f));
-        createPointLight(new Vector3f(5.0f, 1.0f, 0.0f), new Vector3f(0.1f, 0.3f, 1.0f));
+        TransformComponent transform = new TransformComponent();
+        transform.setPosition(-2.0f, 4.0f, 2.0f);
+        transform.setScale(1.0f);
+
+        world.add(entity, transform);
+        world.add(entity, new MeshRendererComponent(cube));
+        world.add(entity, new BoundsComponent(cube.bounds()));
     }
 
     private void createSun() {
         DirectionalLight sun = new DirectionalLight();
         sun.setColor(new Vector3f(1.0f, 0.95f, 0.85f));
-        sun.setIntensity(0.5f);
+        sun.setIntensity(0.8f);
 
-        Entity sunEntity = world.createEntity();
+        Entity entity = world.createEntity();
 
-        TransformComponent sunTransform = new TransformComponent();
-        sunTransform.setRotation(new Quaternionf().rotateXYZ((float) Math.toRadians(-45.0), (float) Math.toRadians(-30.0), 0.0f));
+        TransformComponent transform = new TransformComponent();
 
-        world.add(sunEntity, sunTransform);
-        world.add(sunEntity, new LightComponent(sun));
+        transform.setRotation(
+                new Quaternionf()
+                        .rotateXYZ(
+                                (float) Math.toRadians(-45.0f),
+                                (float) Math.toRadians(-35.0f),
+                                0.0f
+                        )
+        );
+
+        world.add(entity, transform);
+        world.add(entity, new LightComponent(sun));
     }
 
     private void createPointLight(Vector3f position, Vector3f color) {
@@ -124,7 +165,7 @@ public final class Tengoku implements AutoCloseable {
                 time.consumeUpdate();
             }
 
-            services.renderSystem().render(world);
+            services.renderSystem().render(world, window.framebufferWidth(), window.framebufferHeight());
 
             window.swapBuffers();
         }

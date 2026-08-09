@@ -32,4 +32,10 @@ public interface ShaderUniforms {
     void setPointLightColor(int index, Vector3f color);
 
     void setPointLightRange(int index, float range);
+
+    void setShadowMap(int textureUnit);
+
+    void setShadowView(Matrix4f matrix);
+
+    void setShadowProjection(Matrix4f matrix);
 }

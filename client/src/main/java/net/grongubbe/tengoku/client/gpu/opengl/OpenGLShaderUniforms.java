@@ -33,6 +33,10 @@ public final class OpenGLShaderUniforms implements ShaderUniforms {
     private final int[] pointLightColors;
     private final int[] pointLightRanges;
 
+    private final int shadowMap;
+    private final int shadowView;
+    private final int shadowProjection;
+
     private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
     private final FloatBuffer normalMatrixBuffer = BufferUtils.createFloatBuffer(9);
 
@@ -62,6 +66,10 @@ public final class OpenGLShaderUniforms implements ShaderUniforms {
             pointLightColors[i] = glGetUniformLocation(program, "pointLightColors[" + i + "]");
             pointLightRanges[i] = glGetUniformLocation(program, "pointLightRanges[" + i + "]");
         }
+
+        shadowMap = glGetUniformLocation(program, "shadowMap");
+        shadowView = glGetUniformLocation(program, "shadowView");
+        shadowProjection = glGetUniformLocation(program, "shadowProjection");
     }
 
     @Override
@@ -148,6 +156,18 @@ public final class OpenGLShaderUniforms implements ShaderUniforms {
     public void setPointLightRange(int index, float range) {
         validatePointLightIndex(index);
         upload(pointLightRanges[index], range);
+    }
+
+    @Override public void setShadowMap(int textureUnit) {
+        upload(shadowMap, textureUnit);
+    }
+
+    @Override public void setShadowView(Matrix4f matrix) {
+        upload(shadowView, matrix);
+    }
+
+    @Override public void setShadowProjection(Matrix4f matrix) {
+        upload(shadowProjection, matrix);
     }
 
     private void validatePointLightIndex(int index) {
