@@ -39,9 +39,12 @@ public final class ShadowPass implements RenderPass {
     private final Quaternionf lightRotation = new Quaternionf();
 
     private final Vector3f shadowCenter = new Vector3f();
+    private final Vector3f lightSpaceCenter = new Vector3f();
 
     private final Matrix4f lightView = new Matrix4f();
     private final Matrix4f lightProjection = new Matrix4f();
+    private final Matrix4f lightRotationMatrix = new Matrix4f();
+    private final Matrix4f inverseLightRotationMatrix = new Matrix4f();
 
     private final Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
 
@@ -114,6 +117,22 @@ public final class ShadowPass implements RenderPass {
         }
 
         frame.views().getFirst().position(shadowCenter);
+
+        lightRotationMatrix.identity().lookAt(
+                0.0f, 0.0f, 0.0f,
+                lightDirection.x, lightDirection.y, lightDirection.z,
+                up.x, up.y, up.z
+        );
+
+        lightSpaceCenter.set(shadowCenter).mulPosition(lightRotationMatrix);
+
+        float texelSize = (2.0f * DIRECTIONAL_SHADOW_SIZE) / DIRECTIONAL_SHADOW_MAP_SIZE;
+
+        lightSpaceCenter.x = Math.round(lightSpaceCenter.x / texelSize) * texelSize;
+        lightSpaceCenter.y = Math.round(lightSpaceCenter.y / texelSize) * texelSize;
+
+        inverseLightRotationMatrix.set(lightRotationMatrix).invert();
+        shadowCenter.set(lightSpaceCenter).mulPosition(inverseLightRotationMatrix);
 
         lightPosition.set(shadowCenter).fma(-DIRECTIONAL_SHADOW_DISTANCE, lightDirection);
         lightView.setLookAt(lightPosition, shadowCenter, up);

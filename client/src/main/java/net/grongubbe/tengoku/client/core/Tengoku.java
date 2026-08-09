@@ -29,6 +29,9 @@ public final class Tengoku implements AutoCloseable {
     private final TransformComponent cameraTransform;
     private final World world;
 
+    private TransformComponent suzanneTransform;
+    private float animationTime;
+
     public Tengoku() {
         LOGGER.info("Creating Tengoku instance");
 
@@ -92,11 +95,11 @@ public final class Tengoku implements AutoCloseable {
     private void createSuzanne(Model model) {
         Entity entity = world.createEntity();
 
-        TransformComponent transform = new TransformComponent();
-        transform.setPosition(0.0f, 0.5f, 0.0f);
-        transform.setScale(1.0f);
+        suzanneTransform = new TransformComponent();
+        suzanneTransform.setPosition(0.0f, 0.5f, 0.0f);
+        suzanneTransform.setScale(1.0f);
 
-        world.add(entity, transform);
+        world.add(entity, suzanneTransform);
         world.add(entity, new MeshRendererComponent(model));
         world.add(entity, new BoundsComponent(model.bounds()));
     }
@@ -178,8 +181,12 @@ public final class Tengoku implements AutoCloseable {
 
         window.setWindowTitle("Tengoku " + time.fps());
 
-        TransformUtils.rotateAround(cameraTransform, new Vector3f(0, 0, 0), (float) time.fixedDelta());
+        TransformUtils.rotateAround(cameraTransform, new Vector3f(0, 0, 0), (float) time.fixedDelta() / 10);
         TransformUtils.lookAt(cameraTransform, new Vector3f(0, 0, 0));
+
+        animationTime += (float) time.fixedDelta();
+        float x = (float) Math.sin(animationTime / 1.5f) * 5.0f;
+        suzanneTransform.setPosition(x, 0.5f, 0.0f);
     }
 
     @Override
