@@ -25,6 +25,10 @@ public final class Renderer {
     public void render(RenderFrame frame, int framebufferWidth, int framebufferHeight) {
         RenderThread.assertCurrent();
 
+        if (framebufferWidth <= 0 || framebufferHeight <= 0) {
+            return;
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         execute(shadowPass, frame);
