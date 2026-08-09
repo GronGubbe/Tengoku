@@ -56,7 +56,22 @@ void main() {
 
     shadowCoordinates.z -= SHADOW_BIAS;
 
-    shadow = texture(shadowMap, shadowCoordinates);
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+
+    shadow = 0.0;
+
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            vec2 offset = vec2(x, y) * texelSize;
+
+            shadow += texture(
+                    shadowMap,
+                    vec3(shadowCoordinates.xy + offset, shadowCoordinates.z)
+            );
+        }
+    }
+
+    shadow /= 9.0;
 
     lighting += sunColor * sunIntensity * (diffuse + specular) * shadow;
 
