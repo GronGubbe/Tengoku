@@ -53,6 +53,8 @@ public final class TransformComponent implements Component {
     }
 
     public void translate(Vector3fc translation) {
+        Objects.requireNonNull(translation, "translation");
+
         position.add(translation);
         markDirty();
     }

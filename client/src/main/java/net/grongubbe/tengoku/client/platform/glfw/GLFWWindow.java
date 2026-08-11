@@ -37,6 +37,10 @@ public final class GLFWWindow implements AutoCloseable {
         return glfwWindowShouldClose(handle);
     }
 
+    public void requestClose() {
+        glfwSetWindowShouldClose(handle, true);
+    }
+
     public void makeContextCurrent() {
         glfwMakeContextCurrent(handle);
     }
@@ -69,6 +73,18 @@ public final class GLFWWindow implements AutoCloseable {
         framebufferSizeCallback = glfwSetFramebufferSizeCallback(handle, (_, width, height) ->
                 callback.resized(width, height)
         );
+    }
+
+    public void setCursorLocked(boolean locked) {
+        glfwSetInputMode(handle, GLFW_CURSOR, locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    }
+
+    public long nativeHandle() {
+        if (handle == NULL) {
+            throw new IllegalStateException("GLFW window has been destroyed");
+        }
+
+        return handle;
     }
 
     @Override

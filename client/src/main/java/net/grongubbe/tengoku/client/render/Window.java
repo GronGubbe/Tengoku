@@ -1,5 +1,7 @@
 package net.grongubbe.tengoku.client.render;
 
+import net.grongubbe.tengoku.client.input.Input;
+import net.grongubbe.tengoku.client.input.glfw.GlfwInput;
 import net.grongubbe.tengoku.client.platform.glfw.GLFWContext;
 import net.grongubbe.tengoku.client.platform.glfw.GLFWWindow;
 import net.grongubbe.tengoku.client.platform.opengl.OpenGLContext;
@@ -13,6 +15,7 @@ public final class Window implements AutoCloseable {
     private final GLFWContext glfwContext;
     private final GLFWWindow glfwWindow;
     private final OpenGLContext openGLContext;
+    private final GlfwInput input;
 
     private Camera resizeCamera;
 
@@ -23,6 +26,7 @@ public final class Window implements AutoCloseable {
         GLFWContext createdContext = null;
         GLFWWindow createdWindow = null;
         OpenGLContext createdOpenGLContext;
+        GlfwInput createdInput;
 
         try {
             createdContext = new GLFWContext();
@@ -32,11 +36,16 @@ public final class Window implements AutoCloseable {
 
             createdWindow.setFramebufferSizeCallback(this::resize);
             createdWindow.setSwapInterval(vsync ? 1 : 0);
+            createdWindow.setCursorLocked(true);
+
+            createdInput = new GlfwInput(createdWindow.nativeHandle());
+
             createdWindow.show();
 
             glfwContext = createdContext;
             glfwWindow = createdWindow;
             openGLContext = createdOpenGLContext;
+            input = createdInput;
 
         } catch (Throwable throwable) {
             if (createdWindow != null) {
@@ -72,12 +81,28 @@ public final class Window implements AutoCloseable {
         return glfwWindow.shouldClose();
     }
 
+    public void requestClose() {
+        RenderThread.assertCurrent();
+
+        glfwWindow.requestClose();
+    }
+
     public int framebufferWidth() {
         return width;
     }
 
     public int framebufferHeight() {
         return height;
+    }
+
+    public Input input() {
+        return input;
+    }
+
+    public void updateInput() {
+        RenderThread.assertCurrent();
+
+        input.update();
     }
 
     public void swapBuffers() {

@@ -2,6 +2,7 @@ package net.grongubbe.tengoku.client.core;
 
 import net.grongubbe.tengoku.client.asset.model.Model;
 import net.grongubbe.tengoku.client.asset.model.ModelKey;
+import net.grongubbe.tengoku.client.test.TestCameraController;
 import net.grongubbe.tengoku.client.render.Window;
 import net.grongubbe.tengoku.client.scene.Entity;
 import net.grongubbe.tengoku.client.scene.World;
@@ -11,7 +12,6 @@ import net.grongubbe.tengoku.client.scene.components.*;
 import net.grongubbe.tengoku.client.scene.light.DirectionalLight;
 import net.grongubbe.tengoku.client.scene.light.PointLight;
 import net.grongubbe.tengoku.client.util.Time;
-import net.grongubbe.tengoku.client.util.TransformUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;
@@ -26,8 +26,9 @@ public final class Tengoku implements AutoCloseable {
     private final Window window;
     private final Time time;
 
-    private final TransformComponent cameraTransform;
     private final World world;
+
+    private final TestCameraController testCameraController;
 
     private TransformComponent suzanneTransform;
     private float animationTime;
@@ -46,7 +47,8 @@ public final class Tengoku implements AutoCloseable {
                 new PerspectiveProjection(
                         (float) Math.toRadians(50.0),
                         (float) window.framebufferWidth() / window.framebufferHeight(),
-                        0.1f, 1000.0f
+                        0.1f,
+                        1000.0f
                 )
         );
 
@@ -56,9 +58,9 @@ public final class Tengoku implements AutoCloseable {
 
         Entity cameraEntity = world.createEntity();
 
-        cameraTransform = new TransformComponent();
-        cameraTransform.setPosition(8.0f, 4.0f, 10.0f);
-        TransformUtils.lookAt(cameraTransform, new Vector3f(0.0f));
+        TransformComponent cameraTransform = new TransformComponent();
+        cameraTransform.setPosition(0.0f, 4.0f, 10.0f);
+        testCameraController = new TestCameraController(cameraTransform, window);
 
         world.add(cameraEntity, cameraTransform);
         world.add(cameraEntity, new CameraComponent(camera));
@@ -160,6 +162,7 @@ public final class Tengoku implements AutoCloseable {
 
         while (!window.shouldClose()) {
             window.pollEvents();
+            window.updateInput();
 
             time.beginFrame();
 
@@ -169,7 +172,6 @@ public final class Tengoku implements AutoCloseable {
             }
 
             services.renderSystem().render(world, window.framebufferWidth(), window.framebufferHeight());
-
             window.swapBuffers();
         }
 
@@ -178,11 +180,9 @@ public final class Tengoku implements AutoCloseable {
 
     private void tick() {
         LOGGER.trace("Tick");
-
         window.setWindowTitle("Tengoku " + time.fps());
 
-        TransformUtils.rotateAround(cameraTransform, new Vector3f(0, 0, 0), (float) time.fixedDelta() / 10);
-        TransformUtils.lookAt(cameraTransform, new Vector3f(0, 0, 0));
+        testCameraController.update((float) time.fixedDelta());
 
         animationTime += (float) time.fixedDelta();
         float x = (float) Math.sin(animationTime / 1.5f) * 5.0f;
