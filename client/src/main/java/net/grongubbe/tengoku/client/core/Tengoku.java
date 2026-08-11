@@ -60,6 +60,7 @@ public final class Tengoku implements AutoCloseable {
 
         TransformComponent cameraTransform = new TransformComponent();
         cameraTransform.setPosition(0.0f, 4.0f, 10.0f);
+
         testCameraController = new TestCameraController(cameraTransform, window);
 
         world.add(cameraEntity, cameraTransform);
@@ -172,6 +173,7 @@ public final class Tengoku implements AutoCloseable {
             }
 
             services.renderSystem().render(world, window.framebufferWidth(), window.framebufferHeight());
+            
             window.swapBuffers();
         }
 
@@ -180,6 +182,7 @@ public final class Tengoku implements AutoCloseable {
 
     private void tick() {
         LOGGER.trace("Tick");
+
         window.setWindowTitle("Tengoku " + time.fps());
 
         testCameraController.update((float) time.fixedDelta());
