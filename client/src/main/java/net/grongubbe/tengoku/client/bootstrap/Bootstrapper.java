@@ -6,7 +6,6 @@ public final class Bootstrapper {
 
     public static void launch() {
         PlatformRuntime platform = new PlatformRuntime(1024, 512, "Tengoku", false, true);
-
         EngineRuntime engine = new EngineRuntime();
         GameRuntime game = new GameRuntime(platform, engine);
 
