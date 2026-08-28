@@ -3,8 +3,6 @@ package net.grongubbe.tengoku.client.gpu.opengl;
 import net.grongubbe.tengoku.client.gpu.GpuResource;
 import net.grongubbe.tengoku.client.render.RenderThread;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_CLAMP_TO_BORDER;
 import static org.lwjgl.opengl.GL30.*;
 
 public final class DirectionalShadowMap implements GpuResource {

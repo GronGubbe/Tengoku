@@ -1,8 +1,7 @@
-package net.grongubbe.tengoku.client.core;
+package net.grongubbe.tengoku.client.bootstrap;
 
 import net.grongubbe.tengoku.client.asset.model.Model;
 import net.grongubbe.tengoku.client.asset.model.ModelKey;
-import net.grongubbe.tengoku.client.test.TestCameraController;
 import net.grongubbe.tengoku.client.render.Window;
 import net.grongubbe.tengoku.client.scene.Entity;
 import net.grongubbe.tengoku.client.scene.World;
@@ -11,41 +10,47 @@ import net.grongubbe.tengoku.client.scene.camera.projection.PerspectiveProjectio
 import net.grongubbe.tengoku.client.scene.components.*;
 import net.grongubbe.tengoku.client.scene.light.DirectionalLight;
 import net.grongubbe.tengoku.client.scene.light.PointLight;
-import net.grongubbe.tengoku.client.util.Time;
+import net.grongubbe.tengoku.client.test.TestCameraController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
-public final class Tengoku implements AutoCloseable {
-    private static final Logger LOGGER = LogManager.getLogger(Tengoku.class);
+public final class GameRuntime implements Lifecycle {
+    private static final Logger LOGGER = LogManager.getLogger(GameRuntime.class);
 
-    private final ClientServices services;
-    private final Window window;
-    private final Time time;
+    private final PlatformRuntime platform;
+    private final EngineRuntime engine;
 
-    private final World world;
+    private World world;
 
-    private final TestCameraController testCameraController;
+    private TransformComponent cameraTransform;
+    private TestCameraController cameraController;
 
     private TransformComponent suzanneTransform;
     private float animationTime;
 
-    public Tengoku() {
-        LOGGER.info("Creating Tengoku instance");
+    public GameRuntime(PlatformRuntime platform, EngineRuntime engine) {
+        this.platform = Objects.requireNonNull(platform, "platform");
+        this.engine = Objects.requireNonNull(engine, "engine");
+    }
 
-        window = new Window(1024, 512, "Tengoku", false, true);
+    @Override
+    public void start() {
+        if (world != null) {
+            throw new IllegalStateException("Game runtime has already started");
+        }
 
-        services = new ClientServices();
-        services.initialize();
+        Window window = platform.window();
 
-        time = new Time(20);
+        world = new World();
 
         Camera camera = new Camera(
                 new PerspectiveProjection(
-                        (float) Math.toRadians(50.0),
+                        (float) Math.toRadians(50.0f),
                         (float) window.framebufferWidth() / window.framebufferHeight(),
                         0.1f,
                         1000.0f
@@ -54,14 +59,12 @@ public final class Tengoku implements AutoCloseable {
 
         window.setResizeCamera(camera);
 
-        world = new World();
-
         Entity cameraEntity = world.createEntity();
 
-        TransformComponent cameraTransform = new TransformComponent();
+        cameraTransform = new TransformComponent();
         cameraTransform.setPosition(0.0f, 4.0f, 10.0f);
 
-        testCameraController = new TestCameraController(cameraTransform, window);
+        cameraController = new TestCameraController(cameraTransform, window);
 
         world.add(cameraEntity, cameraTransform);
         world.add(cameraEntity, new CameraComponent(camera));
@@ -69,9 +72,45 @@ public final class Tengoku implements AutoCloseable {
         createTestScene();
     }
 
+    @Override
+    public void stop() {
+        if (world == null) {
+            return;
+        }
+
+        LOGGER.info("Cleaning up game resources");
+
+        for (Entity entity : world.entities()) {
+            world.destroy(entity);
+        }
+
+        world = null;
+        cameraTransform = null;
+        cameraController = null;
+        suzanneTransform = null;
+        animationTime = 0.0f;
+    }
+
+    public void update(float deltaTime) {
+        requireStarted();
+
+        cameraController.update(deltaTime);
+
+        animationTime += deltaTime;
+
+        float x = (float) Math.sin(animationTime / 1.5f) * 5.0f;
+        suzanneTransform.setPosition(x, 0.5f, 0.0f);
+    }
+
+    public void render(int framebufferWidth, int framebufferHeight) {
+        requireStarted();
+
+        engine.services().renderSystem().render(world, framebufferWidth, framebufferHeight);
+    }
+
     private void createTestScene() {
-        Model suzanne = services.assets().get(new ModelKey(Path.of("models/suzanne.model.json")));
-        Model cube = services.assets().get(new ModelKey(Path.of("models/cube.model.json")));
+        Model suzanne = engine.services().assets().get(new ModelKey(Path.of("models/suzanne.model.json")));
+        Model cube = engine.services().assets().get(new ModelKey(Path.of("models/cube.model.json")));
 
         createGround(cube);
         createSuzanne(suzanne);
@@ -156,52 +195,9 @@ public final class Tengoku implements AutoCloseable {
         world.add(pointLightEntity, new LightComponent(pointLight));
     }
 
-    public void run() {
-        LOGGER.info("Starting game loop");
-
-        time.start();
-
-        while (!window.shouldClose()) {
-            window.pollEvents();
-            window.updateInput();
-
-            time.beginFrame();
-
-            while (time.shouldUpdate()) {
-                tick();
-                time.consumeUpdate();
-            }
-
-            services.renderSystem().render(world, window.framebufferWidth(), window.framebufferHeight());
-            
-            window.swapBuffers();
+    private void requireStarted() {
+        if (world == null) {
+            throw new IllegalStateException("Game runtime has not started");
         }
-
-        LOGGER.info("Game loop stopped");
-    }
-
-    private void tick() {
-        LOGGER.trace("Tick");
-
-        window.setWindowTitle("Tengoku " + time.fps());
-
-        testCameraController.update((float) time.fixedDelta());
-
-        animationTime += (float) time.fixedDelta();
-        float x = (float) Math.sin(animationTime / 1.5f) * 5.0f;
-        suzanneTransform.setPosition(x, 0.5f, 0.0f);
-    }
-
-    @Override
-    public void close() {
-        LOGGER.info("Cleaning up client resources");
-
-        for (Entity entity : world.entities()) {
-            world.destroy(entity);
-        }
-
-        services.gpuResources().cleanup();
-
-        window.close();
     }
 }

@@ -10,7 +10,6 @@ import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 import java.util.Objects;
 
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 public final class OpenGLShadowExecutor {
