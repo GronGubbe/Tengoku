@@ -1,7 +1,9 @@
 package net.grongubbe.tengoku.client.bootstrap;
 
+import net.grongubbe.tengoku.client.asset.AssetRuntime;
 import net.grongubbe.tengoku.client.asset.model.Model;
 import net.grongubbe.tengoku.client.asset.model.ModelKey;
+import net.grongubbe.tengoku.client.render.RenderRuntime;
 import net.grongubbe.tengoku.client.render.Window;
 import net.grongubbe.tengoku.client.scene.Entity;
 import net.grongubbe.tengoku.client.scene.World;
@@ -23,7 +25,8 @@ public final class GameRuntime implements Lifecycle {
     private static final Logger LOGGER = LogManager.getLogger(GameRuntime.class);
 
     private final PlatformRuntime platform;
-    private final EngineRuntime engine;
+    private final AssetRuntime assets;
+    private final RenderRuntime render;
 
     private World world;
 
@@ -33,9 +36,10 @@ public final class GameRuntime implements Lifecycle {
     private TransformComponent suzanneTransform;
     private float animationTime;
 
-    public GameRuntime(PlatformRuntime platform, EngineRuntime engine) {
+    public GameRuntime(PlatformRuntime platform, AssetRuntime assets, RenderRuntime render) {
         this.platform = Objects.requireNonNull(platform, "platform");
-        this.engine = Objects.requireNonNull(engine, "engine");
+        this.assets = Objects.requireNonNull(assets, "assets");
+        this.render = Objects.requireNonNull(render, "render");
     }
 
     @Override
@@ -105,12 +109,12 @@ public final class GameRuntime implements Lifecycle {
     public void render(int framebufferWidth, int framebufferHeight) {
         requireStarted();
 
-        engine.services().renderSystem().render(world, framebufferWidth, framebufferHeight);
+        render.renderer().render(world, framebufferWidth, framebufferHeight);
     }
 
     private void createTestScene() {
-        Model suzanne = engine.services().assets().get(new ModelKey(Path.of("models/suzanne.model.json")));
-        Model cube = engine.services().assets().get(new ModelKey(Path.of("models/cube.model.json")));
+        Model suzanne = assets.assets().get(new ModelKey(Path.of("models/suzanne.model.json")));
+        Model cube = assets.assets().get(new ModelKey(Path.of("models/cube.model.json")));
 
         createGround(cube);
         createSuzanne(suzanne);

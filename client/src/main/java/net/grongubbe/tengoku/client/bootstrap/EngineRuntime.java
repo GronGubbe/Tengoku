@@ -1,35 +1,39 @@
 package net.grongubbe.tengoku.client.bootstrap;
 
-import net.grongubbe.tengoku.client.core.ClientServices;
+import net.grongubbe.tengoku.client.asset.AssetRuntime;
+import net.grongubbe.tengoku.client.gpu.GpuRuntime;
+import net.grongubbe.tengoku.client.render.RenderRuntime;
 
 public final class EngineRuntime implements Lifecycle {
-    private ClientServices services;
+    private final AssetRuntime assets;
+    private final GpuRuntime gpu;
+    private final RenderRuntime render;
+
+    public EngineRuntime() {
+        assets = new AssetRuntime();
+        gpu = new GpuRuntime();
+        render = new RenderRuntime(assets, gpu);
+    }
 
     @Override
     public void start() {
-        if (services != null) {
-            throw new IllegalStateException("Engine runtime has already started");
-        }
-
-        services = new ClientServices();
-        services.initialize();
+        assets.start();
+        gpu.start();
+        render.start();
     }
 
     @Override
     public void stop() {
-        if (services == null) {
-            return;
-        }
-
-        services.gpuResources().cleanup();
-        services = null;
+        render.stop();
+        gpu.stop();
+        assets.stop();
     }
 
-    public ClientServices services() {
-        if (services == null) {
-            throw new IllegalStateException("Engine runtime has not started");
-        }
+    public AssetRuntime assetRuntime() {
+        return assets;
+    }
 
-        return services;
+    public RenderRuntime renderRuntime() {
+        return render;
     }
 }
