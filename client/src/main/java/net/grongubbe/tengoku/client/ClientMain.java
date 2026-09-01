@@ -12,6 +12,7 @@ public final class ClientMain {
             Bootstrapper.launch();
         } catch (Throwable throwable) {
             LOGGER.error("Fatal client error", throwable);
+            throw throwable;
         } finally {
             LOGGER.info("Tengoku stopped");
         }
