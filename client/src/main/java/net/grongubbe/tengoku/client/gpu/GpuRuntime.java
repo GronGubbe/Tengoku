@@ -29,11 +29,9 @@ public final class GpuRuntime {
     }
 
     public void stop() {
-        if (resourceManager == null) {
-            return;
+        if (resourceManager != null) {
+            resourceManager.cleanup();
         }
-
-        resourceManager.cleanup();
 
         resourceManager = null;
         uploadQueue = null;
