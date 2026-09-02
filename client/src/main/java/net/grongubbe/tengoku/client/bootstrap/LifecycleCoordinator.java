@@ -48,7 +48,6 @@ public final class LifecycleCoordinator {
 
                 currentEntry = entry;
                 entry.lifecycle().start();
-
             }
 
             state = LifecycleState.RUNNING;
@@ -57,7 +56,13 @@ public final class LifecycleCoordinator {
 
             String name = currentEntry == null ? "<none>" : currentEntry.name();
 
-            RuntimeException failure = new IllegalStateException("Failed to start lifecycle component: " + name, exception);
+            RuntimeException failure = new IllegalStateException(
+                    """
+                    Failed to start lifecycle component '%s':
+            
+                    %s
+                    """.formatted(name, exception.getMessage()), exception
+            );
 
             try {
                 cleanupStack.close();

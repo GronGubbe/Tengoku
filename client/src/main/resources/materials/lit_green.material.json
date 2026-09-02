@@ -1,7 +1,0 @@
-{
-  "shader": "shaders/lit.shader.json",
-  "parameters": {
-    "albedo": "textures/white.texture.json",
-    "tint": [0.0, 1.0, 0.0, 1.0]
-  }
-}

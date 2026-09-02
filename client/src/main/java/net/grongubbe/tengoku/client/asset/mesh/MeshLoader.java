@@ -27,14 +27,12 @@ public final class MeshLoader implements AssetLoader<MeshKey, Mesh> {
         try (InputStream stream = ResourceLoader.open(key.path())) {
             definition = deserializer.deserialize(stream);
         } catch (RuntimeException exception) {
-            throw new IllegalStateException("""
-                    Failed to deserialize mesh definition.
-
-                    Mesh:
-                    %s
-
-                    Reason:
-                    %s
+            throw new IllegalStateException(
+                    """
+                    Failed to deserialize mesh.
+                    Mesh: %s
+                    
+                    Reason: %s
                     """.formatted(key.path(), exception.getMessage()), exception
             );
         }
@@ -44,18 +42,18 @@ public final class MeshLoader implements AssetLoader<MeshKey, Mesh> {
         try (InputStream model = ResourceLoader.open(definition.model())) {
             imported = importer.importMesh(model);
         } catch (RuntimeException exception) {
-            throw new IllegalStateException("""
+            throw new IllegalStateException(
+                    """
                     Failed to import mesh.
-
-                    Mesh:
-                    %s
-
-                    Source model:
-                    %s
-
-                    Reason:
-                    %s
-                    """.formatted(key.path(), definition.model(), exception.getMessage()), exception
+                    Mesh: %s
+                    Source model: %s
+                    
+                    Reason: %s
+                    """.formatted(
+                            key.path(),
+                            definition.model(),
+                            exception.getMessage()
+                    ), exception
             );
         }
 

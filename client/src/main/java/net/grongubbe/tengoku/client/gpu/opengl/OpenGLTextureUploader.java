@@ -25,9 +25,7 @@ public final class OpenGLTextureUploader implements GpuUploader<Texture, GpuText
         if (textureId == 0) {
             throw new IllegalStateException("""
                     Failed to create OpenGL texture.
-
-                    Texture:
-                    %s
+                    Texture: %s
                     """.formatted(texture.key().path())
             );
         }
@@ -75,12 +73,8 @@ public final class OpenGLTextureUploader implements GpuUploader<Texture, GpuText
         if (error != GL_NO_ERROR) {
             throw new IllegalStateException("""
                     OpenGL texture upload failed.
-        
-                    Texture:
-                    %s
-        
-                    OpenGL error:
-                    %s
+                    Texture: %s
+                    OpenGL error: %s
                     """.formatted(texture.key().path(), OpenGLUtils.errorName(error))
             );
         }

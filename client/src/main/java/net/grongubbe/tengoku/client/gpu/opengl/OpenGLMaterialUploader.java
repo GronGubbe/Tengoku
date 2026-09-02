@@ -47,12 +47,8 @@ public final class OpenGLMaterialUploader implements GpuUploader<Material, GpuMa
 
         throw new IllegalStateException("""
                 Missing GPU shader dependency.
-
-                Material:
-                %s
-
-                Shader:
-                %s
+                Material: %s
+                Shader: %s
                 """.formatted(material.key().path(), material.shader().key().path())
         );
     }
@@ -90,14 +86,9 @@ public final class OpenGLMaterialUploader implements GpuUploader<Material, GpuMa
         if (value instanceof GpuResource) {
             throw new IllegalStateException("""
                     Material contains a GPU resource reference.
-
                     CPU materials must not contain GPU objects.
-
-                    Material:
-                    %s
-
-                    Parameter:
-                    %s
+                    Material: %s
+                    Parameter: %s
                     """.formatted(material.key().path(), parameter.name())
             );
         }
@@ -113,15 +104,9 @@ public final class OpenGLMaterialUploader implements GpuUploader<Material, GpuMa
 
         throw new IllegalStateException("""
                 Missing GPU dependency.
-
-                Material:
-                %s
-
-                Parameter:
-                %s
-
-                Asset:
-                %s
+                Material: %s
+                Parameter: %s
+                Asset: %s
                 """.formatted(material.key().path(), parameter.name(), asset.key())
         );
     }

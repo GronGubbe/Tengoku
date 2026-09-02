@@ -5,14 +5,12 @@
     {
       "slot": 0,
       "name": "albedo",
-      "type": "TEXTURE",
-      "required": true
+      "type": "TEXTURE"
     },
     {
       "slot": 1,
       "name": "tint",
-      "type": "VECTOR4",
-      "required": true
+      "type": "VECTOR4"
     }
   ]
 }

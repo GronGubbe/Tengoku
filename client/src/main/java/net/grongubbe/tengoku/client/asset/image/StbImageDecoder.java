@@ -21,7 +21,7 @@ public final class StbImageDecoder implements ImageDecoder {
         ByteBuffer encoded = readInput(input);
 
         try {
-            LOGGER.info("Encoded image size {}", encoded.remaining());
+            LOGGER.debug("Encoded image size {}", encoded.remaining());
 
             IntBuffer widthBuffer = BufferUtils.createIntBuffer(1);
             IntBuffer heightBuffer = BufferUtils.createIntBuffer(1);
@@ -44,7 +44,7 @@ public final class StbImageDecoder implements ImageDecoder {
                 int height = heightBuffer.get(0);
                 int channels = channelsBuffer.get(0);
 
-                LOGGER.info("STB decoded {}x{} channels {}", width, height, channels);
+                LOGGER.debug("STB decoded {}x{} channels {}", width, height, channels);
 
                 TextureFormat format = switch (channels) {
                     case 1 -> TextureFormat.R8;
@@ -59,14 +59,14 @@ public final class StbImageDecoder implements ImageDecoder {
 
                 ByteBuffer pixels = MemoryUtil.memAlloc(size);
 
-                LOGGER.info("Copying {} bytes from STB buffer (remaining {})", size, stbPixels.remaining());
+                LOGGER.debug("Copying {} bytes from STB buffer (remaining {})", size, stbPixels.remaining());
 
                 MemoryUtil.memCopy(MemoryUtil.memAddress(stbPixels), MemoryUtil.memAddress(pixels), size);
 
                 pixels.limit(size);
                 pixels.position(0);
 
-                LOGGER.info("Creating ImageData");
+                LOGGER.debug("Creating ImageData");
 
                 return new ImageData(width, height, format, pixels);
             } finally {

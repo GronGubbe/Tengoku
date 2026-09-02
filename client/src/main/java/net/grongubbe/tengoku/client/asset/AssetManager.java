@@ -42,7 +42,7 @@ public final class AssetManager implements AssetLoadingContext {
 
             return asset;
         } catch (IOException exception) {
-            throw new AssetLoadException("Failed loading asset: " + key, exception);
+            throw new IllegalStateException("Failed to load asset '" + key + "': " + exception.getMessage(), exception);
         }
     }
 }

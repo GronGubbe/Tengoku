@@ -26,23 +26,48 @@ public final class TextureLoader implements AssetLoader<TextureKey, Texture> {
 
     @Override
     public Texture load(TextureKey key, AssetLoadingContext context) throws IOException {
-        LOGGER.info("Loading texture definition {}", key.path());
+        LOGGER.debug("Loading texture definition {}", key.path());
+
+        TextureDefinition definition;
 
         try (InputStream stream = ResourceLoader.open(key.path())) {
-            TextureDefinition definition = deserializer.deserialize(stream);
+            definition = deserializer.deserialize(stream);
+        } catch (RuntimeException exception) {
+            throw new IllegalStateException(
+                    """
+                    Failed to deserialize texture.
+                    Texture: %s
+                    Reason: %s
+                    """.formatted(key.path(), exception.getMessage()), exception
+            );
+        }
 
-            LOGGER.info("Texture references image {}", definition.image());
+        LOGGER.debug("Texture '{}' references image '{}'", key.path(), definition.image());
 
-            try (InputStream image = ResourceLoader.open(definition.image())) {
-                ImageData data = decoder.decode(image);
-                LOGGER.info("Decoded texture {}x{} {}", data.width(), data.height(), data.format());
+        try (InputStream image = ResourceLoader.open(definition.image())) {
+            ImageData data;
 
-                Texture texture = new Texture(key, data);
-
-                LOGGER.info("Texture object created");
-
-                return texture;
+            try {
+                data = decoder.decode(image);
+            } catch (IOException | RuntimeException exception) {
+                throw new IllegalStateException(
+                        """
+                        Failed to decode texture.
+                        Texture: %s
+                        Image: %s
+                        
+                        Reason: %s
+                        """.formatted(
+                                key.path(),
+                                definition.image(),
+                                exception.getMessage()
+                        ), exception
+                );
             }
+
+            LOGGER.debug("Decoded texture {}x{} {}", data.width(), data.height(), data.format());
+
+            return new Texture(key, data);
         }
     }
 }

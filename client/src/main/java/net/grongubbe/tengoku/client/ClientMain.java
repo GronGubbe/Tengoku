@@ -13,8 +13,10 @@ public final class ClientMain {
         try {
             Bootstrapper.launch();
         } catch (RuntimeException | Error exception) {
-            LOGGER.error("Fatal client error: {}", rootCause(exception).getMessage());
-            LOGGER.debug("Fatal client error", exception);
+            LOGGER.error(
+                    "Fatal client error:\n    {}",
+                    exception.getMessage().stripTrailing().replace("\n", "\n    ")
+            );
             exitCode = 1;
         } finally {
             LOGGER.info("Tengoku stopped");
@@ -23,15 +25,5 @@ public final class ClientMain {
         if (exitCode != 0) {
             System.exit(exitCode);
         }
-    }
-
-    private static Throwable rootCause(Throwable throwable) {
-        Throwable cause = throwable;
-
-        while (cause.getCause() != null) {
-            cause = cause.getCause();
-        }
-
-        return cause;
     }
 }

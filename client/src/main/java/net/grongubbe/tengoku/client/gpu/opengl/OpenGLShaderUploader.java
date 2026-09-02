@@ -68,15 +68,9 @@ public final class OpenGLShaderUploader implements GpuUploader<Shader, GpuShader
 
             throw new IllegalStateException("""
                     Shader compilation failed.
-
-                    Shader:
-                    %s
-
-                    Stage:
-                    %s
-
-                    Compiler log:
-                    %s
+                    Shader: %s
+                    Stage: %s
+                    Compiler log: %s
                     """.formatted(asset, stage, glGetShaderInfoLog(shader).trim())
             );
         }
@@ -86,12 +80,8 @@ public final class OpenGLShaderUploader implements GpuUploader<Shader, GpuShader
         if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
             throw new IllegalStateException("""
                     Shader linking failed.
-
-                    Shader:
-                    %s
-
-                    Linker log:
-                    %s
+                    Shader: %s
+                    Linker log: %s
                     """.formatted(shader.key().path(), glGetProgramInfoLog(program).trim())
             );
         }
@@ -105,21 +95,18 @@ public final class OpenGLShaderUploader implements GpuUploader<Shader, GpuShader
                 continue;
             }
 
-            String expected = shader.layout().parameters().stream().map(MaterialParameterDefinition::name).sorted().collect(Collectors.joining("\n"));
+            String expected = shader.layout().parameters().stream()
+                    .map(MaterialParameterDefinition::name)
+                    .sorted()
+                    .map(name -> "        " + name)
+                    .collect(Collectors.joining("\n"));
 
             throw new IllegalStateException("""
                     Shader validation failed.
-
-                    Shader:
-                    %s
-
-                    Missing uniform:
-                    %s
-
-                    Expected type:
-                    %s
-
-                    Expected material uniforms:
+                    Shader: %s
+                    Missing uniform: %s
+                    Expected type: %s
+                    Expected uniforms:
                     %s
                     """.formatted(shader.key().path(), parameter.name(), parameter.type(), expected)
             );

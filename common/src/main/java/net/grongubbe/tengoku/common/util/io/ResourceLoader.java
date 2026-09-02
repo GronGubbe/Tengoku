@@ -1,6 +1,8 @@
 package net.grongubbe.tengoku.common.util.io;
 
 import net.grongubbe.tengoku.common.util.OptionalAutoCloseable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -8,15 +10,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Utility class with static methods to load resources from classpath or filesystem.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "LoggingSimilarMessage"})
 public final class ResourceLoader {
-    private static final Logger LOGGER = Logger.getLogger(ResourceLoader.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ResourceLoader.class);
 
     private ResourceLoader() {}
 
@@ -54,7 +54,7 @@ public final class ResourceLoader {
 
         // If the provided Path is an absolute filesystem path that exists, open it first.
         if (path.isAbsolute() && Files.exists(path)) {
-            LOGGER.log(Level.FINE, "Opened filesystem resource: " + path.toAbsolutePath());
+            LOGGER.debug("Opened filesystem resource: {}", path.toAbsolutePath());
             return Files.newInputStream(path);
         }
 
@@ -62,18 +62,18 @@ public final class ResourceLoader {
         String resourceName = toResourceName(path);
         InputStream in = ResourceLoader.class.getClassLoader().getResourceAsStream(resourceName);
         if (in != null) {
-            LOGGER.log(Level.FINE, "Opened classpath resource: " + resourceName);
+            LOGGER.debug("Opened classpath resource: {}", resourceName);
             return in;
         }
 
         // Fallback to relative filesystem path
         if (Files.exists(path)) {
-            LOGGER.log(Level.FINE, "Opened filesystem resource: " + path.toAbsolutePath());
+            LOGGER.debug("Opened filesystem resource: {}", path.toAbsolutePath());
             return Files.newInputStream(path);
         }
 
         String msg = "Resource not found on classpath or filesystem: " + path;
-        LOGGER.log(Level.WARNING, msg);
+        LOGGER.warn(msg);
         throw new FileNotFoundException(msg);
     }
 
@@ -115,7 +115,7 @@ public final class ResourceLoader {
 
         // If absolute and exists, open filesystem resource
         if (path.isAbsolute() && Files.exists(path)) {
-            LOGGER.log(Level.FINE, "Opened filesystem resource: " + path.toAbsolutePath());
+            LOGGER.debug("Opened filesystem resource: {}", path.toAbsolutePath());
             return OptionalAutoCloseable.ofNullable(Files.newInputStream(path));
         }
 
@@ -123,13 +123,13 @@ public final class ResourceLoader {
         String resourceName = toResourceName(path);
         InputStream in = ResourceLoader.class.getClassLoader().getResourceAsStream(resourceName);
         if (in != null) {
-            LOGGER.log(Level.FINE, "Opened classpath resource: " + resourceName);
+            LOGGER.debug("Opened classpath resource: {}", resourceName);
             return OptionalAutoCloseable.ofNullable(in);
         }
 
         // Fallback to relative filesystem path
         if (Files.exists(path)) {
-            LOGGER.log(Level.FINE, "Opened filesystem resource: " + path.toAbsolutePath());
+            LOGGER.debug("Opened filesystem resource: {}", path.toAbsolutePath());
             return OptionalAutoCloseable.ofNullable(Files.newInputStream(path));
         }
 
@@ -243,7 +243,7 @@ public final class ResourceLoader {
 
         // If absolute and exists, open filesystem resource
         if (path.isAbsolute() && Files.exists(path)) {
-            LOGGER.log(Level.FINE, "Opened filesystem resource (reader): " + path.toAbsolutePath());
+            LOGGER.debug("Opened filesystem resource (reader): {}", path.toAbsolutePath());
             return OptionalAutoCloseable.ofNullable(Files.newBufferedReader(path, StandardCharsets.UTF_8));
         }
 
@@ -251,13 +251,13 @@ public final class ResourceLoader {
         String resourceName = toResourceName(path);
         InputStream in = ResourceLoader.class.getClassLoader().getResourceAsStream(resourceName);
         if (in != null) {
-            LOGGER.log(Level.FINE, "Opened classpath resource (reader): " + resourceName);
+            LOGGER.debug("Opened classpath resource (reader): {}", resourceName);
             return OptionalAutoCloseable.ofNullable(new InputStreamReader(in, StandardCharsets.UTF_8));
         }
 
         // Fallback to relative filesystem path
         if (Files.exists(path)) {
-            LOGGER.log(Level.FINE, "Opened filesystem resource (reader): " + path.toAbsolutePath());
+            LOGGER.debug("Opened filesystem resource (reader): {}", path.toAbsolutePath());
             return OptionalAutoCloseable.ofNullable(Files.newBufferedReader(path, StandardCharsets.UTF_8));
         }
 

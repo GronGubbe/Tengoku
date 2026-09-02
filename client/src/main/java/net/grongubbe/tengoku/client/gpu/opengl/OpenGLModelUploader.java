@@ -53,12 +53,8 @@ public final class OpenGLModelUploader implements GpuUploader<Model, GpuModel> {
         if (!(resource instanceof GpuMesh mesh)) {
             throw new IllegalStateException("""
                     Missing GPU mesh dependency.
-
-                    Model:
-                    %s
-
-                    Mesh:
-                    %s
+                    Model: %s
+                    Mesh: %s
                     """.formatted(model.key().path(), part.mesh().key().path())
             );
         }
@@ -72,12 +68,8 @@ public final class OpenGLModelUploader implements GpuUploader<Model, GpuModel> {
         if (!(resource instanceof GpuMaterial gpuMaterial)) {
             throw new IllegalStateException("""
                     Missing GPU material dependency.
-
-                    Model:
-                    %s
-
-                    Material:
-                    %s
+                    Model: %s
+                    Material: %s
                     """.formatted(model.key().path(), material.key().path())
             );
         }

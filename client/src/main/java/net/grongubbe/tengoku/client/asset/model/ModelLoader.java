@@ -40,22 +40,21 @@ public final class ModelLoader implements AssetLoader<ModelKey, Model> {
 
                 try {
                     mesh = context.get(new MeshKey(part.mesh()));
-                } catch (RuntimeException e) {
-                    throw new IllegalStateException("""
-                            Failed to load model mesh.
-
-                            Model:
+                } catch (RuntimeException exception) {
+                    throw new IllegalStateException(
+                            """
+                            Failed to load mesh.
+                            Model: %s
+                            Part: %d
+                            Mesh: %s
+                            
                             %s
-
-                            Part:
-                            %d
-
-                            Mesh:
-                            %s
-
-                            Reason:
-                            %s
-                            """.formatted(key.path(), partIndex, part.mesh(), e.getMessage()), e
+                            """.formatted(
+                                    key.path(),
+                                    partIndex,
+                                    part.mesh(),
+                                    exception.getMessage()
+                            ), exception
                     );
                 }
 
@@ -64,22 +63,21 @@ public final class ModelLoader implements AssetLoader<ModelKey, Model> {
                 for (Path materialPath : part.materials()) {
                     try {
                         materials.add(context.get(new MaterialKey(materialPath)));
-                    } catch (RuntimeException e) {
-                        throw new IllegalStateException("""
-                                Failed to load model material.
-
-                                Model:
+                    } catch (RuntimeException exception) {
+                        throw new IllegalStateException(
+                                """
+                                Failed to load material.
+                                Model: %s
+                                Part: %d
+                                Material: %s
+                                
                                 %s
-
-                                Part:
-                                %d
-
-                                Material:
-                                %s
-
-                                Reason:
-                                %s
-                                """.formatted(key.path(), partIndex, materialPath, e.getMessage()), e
+                                """.formatted(
+                                        key.path(),
+                                        partIndex,
+                                        materialPath,
+                                        exception.getMessage()
+                                ), exception
                         );
                     }
                 }

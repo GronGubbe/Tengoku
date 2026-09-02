@@ -1,6 +1,5 @@
 package net.grongubbe.tengoku.client.asset.material;
 
-import net.grongubbe.tengoku.client.asset.AssetFormatting;
 import net.grongubbe.tengoku.client.asset.AssetLoader;
 import net.grongubbe.tengoku.client.asset.AssetLoadingContext;
 import net.grongubbe.tengoku.client.asset.serialization.material.MaterialDefinition;
@@ -33,60 +32,36 @@ public final class MaterialLoader implements AssetLoader<MaterialKey, Material> 
             MaterialDefinition definition = deserializer.deserialize(stream);
             Shader shader = context.get(new ShaderKey(definition.shader()));
 
+            validateParameters(shader, definition);
+
             MaterialValueBuffer values = new MaterialValueBuffer(shader.layout());
 
             for (MaterialParameterDefinition parameter : shader.layout().parameters()) {
                 Object value = definition.parameters().getOrDefault(parameter.name(), parameter.defaultValue());
 
-                if (value != null) {
-                    try {
-                        values.set(parameter.name(), resolveParameterValue(parameter, value, context));
-                    } catch (RuntimeException e) {
-                        throw new IllegalStateException("""
-                                Failed to resolve material parameter.
-                        
-                                Material:
-                                %s
-                        
-                                Shader:
-                                %s
-                        
-                                Parameter:
-                                %s
-                        
-                                Expected type:
-                                %s
-                        
-                                Value:
-                                %s
-                                
-                                Reason:
-                                %s
-                                """.formatted(key.path(), shader.key().path(), parameter.name(), parameter.type(), AssetFormatting.formatValue(value), e.getMessage()), e
-                        );
-                    }
+                if (value == null) {
+                    continue;
                 }
-            }
 
-            for (String name : definition.parameters().keySet()) {
-                if (shader.layout().parameter(name) == null) {
-                    String available = shader.layout().parameters().stream().map(MaterialParameterDefinition::name).sorted().collect(Collectors.joining("\n"));
-
-                    throw new IllegalStateException("""
-                            Invalid material.
+                try {
+                    values.set(parameter.name(), resolveParameterValue(parameter, value, context));
+                } catch (IllegalArgumentException exception) {
+                    throw new IllegalStateException(
+                            """
+                            Invalid material parameter.
+                            Shader: %s
+                            Parameter: %s
+                            Expected type: %s
+                            Value: %s
                             
-                            Material:
-                            %s
-                            
-                            Shader:
-                            %s
-                            
-                            Unknown parameter:
-                            %s
-                            
-                            Available parameters:
-                            %s
-                            """.formatted(key.path(), shader.key().path(), name, available)
+                            Reason: %s
+                            """.formatted(
+                                    shader.key().path(),
+                                    parameter.name(),
+                                    parameter.type(),
+                                    value,
+                                    exception.getMessage()
+                            ), exception
                     );
                 }
             }
@@ -95,15 +70,45 @@ public final class MaterialLoader implements AssetLoader<MaterialKey, Material> 
         }
     }
 
+    private void validateParameters(Shader shader, MaterialDefinition definition) {
+        for (String name : definition.parameters().keySet()) {
+            if (shader.layout().parameter(name) != null) {
+                continue;
+            }
+
+            String available = shader.layout().parameters().stream().map(MaterialParameterDefinition::name).sorted().collect(Collectors.joining(", "));
+
+            throw new IllegalStateException(
+                    """
+                    Invalid material.
+                    Shader: %s
+                    
+                    Unknown parameter: %s
+                    Available parameters: %s
+                    """.formatted(
+                            shader.key().path(),
+                            name,
+                            available
+                    )
+            );
+        }
+    }
+
     private Object resolveParameterValue(MaterialParameterDefinition parameter, Object serializedValue, AssetLoadingContext context) {
         return switch (parameter.type()) {
-            case FLOAT -> ((Number) serializedValue).floatValue();
+            case FLOAT -> {
+                if (!(serializedValue instanceof Number number)) {
+                    throw new IllegalArgumentException("Expected float value, got " + typeName(serializedValue));
+                }
+
+                yield number.floatValue();
+            }
 
             case VECTOR2 -> {
                 List<?> values = requireList(serializedValue, parameter);
 
                 if (values.size() != 2) {
-                    throw new IllegalArgumentException("Expected 2 values for VECTOR2, got " + values.size());
+                    throw new IllegalArgumentException("Expected 2 values, got " + values.size());
                 }
 
                 yield new Vector2f(
@@ -116,7 +121,7 @@ public final class MaterialLoader implements AssetLoader<MaterialKey, Material> 
                 List<?> values = requireList(serializedValue, parameter);
 
                 if (values.size() != 3) {
-                    throw new IllegalArgumentException("Expected 3 values for VECTOR3, got " + values.size());
+                    throw new IllegalArgumentException("Expected 3 values, got " + values.size());
                 }
 
                 yield new Vector3f(
@@ -130,7 +135,7 @@ public final class MaterialLoader implements AssetLoader<MaterialKey, Material> 
                 List<?> values = requireList(serializedValue, parameter);
 
                 if (values.size() != 4) {
-                    throw new IllegalArgumentException("Expected 4 values for VECTOR4, got " + values.size());
+                    throw new IllegalArgumentException("Expected 4 values, got " + values.size());
                 }
 
                 yield new Vector4f(

@@ -18,15 +18,35 @@ public final class ShaderLoader implements AssetLoader<ShaderKey, Shader> {
 
     @Override
     public Shader load(ShaderKey key, AssetLoadingContext context) throws IOException {
+        ShaderDefinition definition;
+
         try (InputStream stream = ResourceLoader.open(key.path())) {
-            ShaderDefinition definition = deserializer.deserialize(stream);
+            definition = deserializer.deserialize(stream);
+        } catch (RuntimeException exception) {
+            throw new IllegalStateException(
+                    """
+                    Failed to deserialize shader.
+                    Shader: %s
+                    Reason: %s
+                    """.formatted(key.path(), exception.getMessage()), exception
+            );
+        }
 
-            String vertexSource = ResourceLoader.readString(definition.vertex());
-            String fragmentSource = ResourceLoader.readString(definition.fragment());
+        String vertexSource = ResourceLoader.readString(definition.vertex());
+        String fragmentSource = ResourceLoader.readString(definition.fragment());
 
+        try {
             ShaderLayout layout = new ShaderLayout(definition.parameters());
 
             return new Shader(key, vertexSource, fragmentSource, layout);
+        } catch (RuntimeException exception) {
+            throw new IllegalStateException(
+                    """
+                    Failed to create shader.
+                    Shader: %s
+                    Reason: %s
+                    """.formatted(key.path(), exception.getMessage()), exception
+            );
         }
     }
 }
