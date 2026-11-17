@@ -1,0 +1,22 @@
+[versions]
+lwjgl = "3.4.3"
+log4j = "2.23.1"
+joml = "1.10.8"
+gson = "2.15.0"
+shadow = "9.6.1"
+jetbrains-annotations = "24.1.0"
+
+[libraries]
+lwjgl-bom = { module = "org.lwjgl:lwjgl-bom", version.ref = "lwjgl" }
+lwjgl = { module = "org.lwjgl:lwjgl" }
+lwjgl-glfw = { module = "org.lwjgl:lwjgl-glfw" }
+lwjgl-opengl = { module = "org.lwjgl:lwjgl-opengl" }
+lwjgl-stb = { module = "org.lwjgl:lwjgl-stb" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+joml = { module = "org.joml:joml", version.ref = "joml" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
