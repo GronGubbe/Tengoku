@@ -3,24 +3,25 @@ package net.grongubbe.tengoku.client.options;
 import com.google.gson.*;
 import net.grongubbe.tengoku.common.io.FileIO;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class OptionsManager {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private String path;
+    private Path path;
 
-    public OptionsManager(String path) {
+    public OptionsManager(Path path) {
         setPath(path);
         read();
     }
 
-    public void setPath(String path) {
+    public void setPath(Path path) {
         this.path = path;
     }
 
-    public String getPath() {
+    public Path getPath() {
         return path;
     }
 

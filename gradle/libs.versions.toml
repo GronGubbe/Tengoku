@@ -1,7 +1,7 @@
 [versions]
 lwjgl = "3.4.3"
 log4j = "2.23.1"
-joml = "1.10.8"
+joml = "1.10.9"
 gson = "2.15.0"
 shadow = "9.6.1"
 jetbrains-annotations = "24.1.0"

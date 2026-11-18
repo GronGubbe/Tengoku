@@ -3,11 +3,10 @@ package net.grongubbe.tengoku.client.ecs;
 import java.util.*;
 
 public class World {
-    private int nextId = 0;
-
+    private final Map<Class<? extends IComponent>, ComponentStore<? extends IComponent>> stores = new HashMap<>();
     private final Set<Integer> entities = new HashSet<>();
 
-    private final Map<Class<? extends IComponent>, ComponentStore<? extends IComponent>> stores = new HashMap<>();
+    private int nextId = 0;
 
     public Entity createEntity() {
         int id = nextId++;
@@ -21,6 +20,35 @@ public class World {
         }
 
         return null;
+    }
+
+    @SafeVarargs
+    public final List<Entity> query(Class<? extends IComponent>... components) {
+        List<Entity> result = new ArrayList<>();
+
+        for (Integer entity : entities) {
+            boolean matches = true;
+
+            for (Class<? extends IComponent> component : components) {
+                ComponentStore<? extends IComponent> store = stores.get(component);
+
+                if (store == null) {
+                    matches = false;
+                    break;
+                }
+
+                if (store.get(entity) == null) {
+                    matches = false;
+                    break;
+                }
+            }
+
+            if (matches) {
+                result.add(getEntity(entity));
+            }
+        }
+
+        return result;
     }
 
     public boolean entityExists(int id) {
