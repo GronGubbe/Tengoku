@@ -1,7 +1,5 @@
 package net.grongubbe.tengoku.client;
 
-import net.grongubbe.tengoku.client.asset.assets.MaterialAsset;
-import net.grongubbe.tengoku.client.asset.assets.MeshAsset;
 import net.grongubbe.tengoku.client.asset.assets.ModelAsset;
 import net.grongubbe.tengoku.client.ecs.Components.ModelComponent;
 import net.grongubbe.tengoku.client.ecs.Components.TransformComponent;
@@ -65,10 +63,10 @@ public class Tengoku implements Runnable, AutoCloseable {
         renderExtractor = new RenderExtractor();
         glbLoader = new GlbLoader();
 
-        ModelAsset cubeModel;
+        ModelAsset gobletModel;
 
         try {
-            cubeModel = glbLoader.load("models/cube.glb");
+            gobletModel = glbLoader.load("models/goblet.glb");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -77,8 +75,8 @@ public class Tengoku implements Runnable, AutoCloseable {
 
         TransformComponent transform1 = new TransformComponent();
 
-        transform1.setPosition(0.0f, 0.0f, 0.0f);
-        transform1.setScale(0.5f);
+        transform1.setPosition(0.0f, -0.25f, 0.0f);
+        transform1.setScale(0.25f);
 
         transform1.setRotation(new Quaternionf().rotateXYZ(
                 (float) Math.toRadians(20),
@@ -87,11 +85,11 @@ public class Tengoku implements Runnable, AutoCloseable {
         ));
 
         world.addComponent(entity1, transform1);
-        world.addComponent(entity1, new ModelComponent(cubeModel));
+        world.addComponent(entity1, new ModelComponent(gobletModel));
 
         Matrix4f viewMatrix = new Matrix4f();
         viewMatrix.rotateXYZ(0.0f, 0.0f, 0.0f);
-        viewMatrix.translation(0.0f, 0.0f, 2.0f);
+        viewMatrix.translation(0.0f, 0.25f, 1.0f);
         viewMatrix.invert();
 
         Matrix4f projectionMatrix = new Matrix4f();
@@ -118,7 +116,7 @@ public class Tengoku implements Runnable, AutoCloseable {
 //                update(time.getFixedDeltaTime());   // Update
 
                 world.getComponent(world.getEntity(0), TransformComponent.class).rotate(
-                        new Quaternionf().rotationY(0.1f)
+                        new Quaternionf().rotationY((float) (1.0f * time.getFixedDeltaTime()))
                 );
 
                 time.completeTick();
