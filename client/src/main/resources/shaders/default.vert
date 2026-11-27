@@ -6,12 +6,6 @@ uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProjection;
 
-out vec3 vColor;
-
 void main() {
-    vec2 screenPosition = aPosition.xy + 0.5;
-
-    vColor = vec3(screenPosition, 0.0);
-
     gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
 }

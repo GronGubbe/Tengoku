@@ -2,6 +2,8 @@ package net.grongubbe.tengoku.client.render.gpu;
 
 import net.grongubbe.tengoku.client.asset.assets.ShaderAsset;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
@@ -95,6 +97,22 @@ public final class GpuShader implements AutoCloseable {
 
             return location;
         });
+    }
+
+    public void setUniform(String name, int value) {
+        glUniform1i(getUniformLocation(name), value);
+    }
+
+    public void setUniform(String name, float value) {
+        glUniform1f(getUniformLocation(name), value);
+    }
+
+    public void setUniform(String name, Vector3f vector) {
+        glUniform3f(getUniformLocation(name), vector.x, vector.y, vector.z);
+    }
+
+    public void setUniform(String name, Vector4f vector) {
+        glUniform4f(getUniformLocation(name), vector.x, vector.y, vector.z, vector.w);
     }
 
     public void setUniform(String name, Matrix4f matrix) {

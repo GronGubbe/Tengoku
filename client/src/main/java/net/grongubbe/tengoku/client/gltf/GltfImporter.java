@@ -5,6 +5,7 @@ import net.grongubbe.tengoku.client.asset.assets.MaterialAsset;
 import net.grongubbe.tengoku.client.asset.assets.MeshAsset;
 import net.grongubbe.tengoku.client.asset.assets.ModelAsset;
 import net.grongubbe.tengoku.client.asset.assets.TextureAsset;
+import net.grongubbe.tengoku.client.material.AlphaMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
@@ -404,7 +405,7 @@ class GltfImporter {
 
             if (material.has("alphaMode")) {
                 String alphaMode = material.get("alphaMode").getAsString();
-                materialBuilder.alphaMode(MaterialAsset.AlphaMode.valueOf(alphaMode));
+                materialBuilder.alphaMode(AlphaMode.valueOf(alphaMode));
             }
 
             if (material.has("alphaCutoff")) {
@@ -504,7 +505,7 @@ class GltfImporter {
                 MeshAsset primitive = primitives.get(i);
 
                 Integer materialIndex = materialIndices.get(meshIndex).get(i);
-                MaterialAsset material = materialIndex != null ? materialAssets.get(materialIndex) : null;
+                MaterialAsset material = materialIndex != null ? materialAssets.get(materialIndex) : MaterialAsset.builder().build();
 
                 ModelAsset.ModelPart modelPart = new ModelAsset.ModelPart(primitive, material, worldTransform);
 

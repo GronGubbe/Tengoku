@@ -1,6 +1,7 @@
 package net.grongubbe.tengoku.client.render;
 
 import net.grongubbe.tengoku.client.asset.assets.ShaderAsset;
+import net.grongubbe.tengoku.client.render.gpu.GpuMaterial;
 import net.grongubbe.tengoku.client.render.gpu.GpuMesh;
 import net.grongubbe.tengoku.client.render.gpu.GpuShader;
 import net.grongubbe.tengoku.client.render.gpu.Uniforms;
@@ -45,9 +46,11 @@ public class Renderer implements AutoCloseable {
 
         for (RenderInstance renderInstance : renderInstances) {
             GpuMesh gpuMesh = renderInstance.gpuMesh();
+            GpuMaterial gpuMaterial = renderInstance.gpuMaterial();
 
             shader.setUniform(Uniforms.MODEL, renderInstance.modelMatrix());
 
+            gpuMaterial.bind(shader);
             gpuMesh.bind();
 
             if (gpuMesh.hasIndices()) {

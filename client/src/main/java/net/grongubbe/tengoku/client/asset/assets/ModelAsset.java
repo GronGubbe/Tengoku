@@ -4,6 +4,7 @@ import net.grongubbe.tengoku.client.asset.IAsset;
 import org.joml.Matrix4f;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ModelAsset implements IAsset {
     private final String name;
@@ -25,9 +26,9 @@ public class ModelAsset implements IAsset {
 
     public record ModelPart(MeshAsset mesh, MaterialAsset material, Matrix4f transform) {
             public ModelPart(MeshAsset mesh, MaterialAsset material, Matrix4f transform) {
-                this.mesh = mesh;
-                this.material = material;
-                this.transform = new Matrix4f(transform);
+                this.mesh = Objects.requireNonNull(mesh, "mesh");
+                this.material = Objects.requireNonNull(material, "material");
+                this.transform = new Matrix4f(Objects.requireNonNull(transform, "transform"));
             }
 
             @Override

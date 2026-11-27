@@ -1,9 +1,9 @@
 #version 330 core
 
+uniform vec4 uBaseColorFactor;
+
 out vec4 fragmentColor;
 
-in vec3 vColor;
-
 void main() {
-    fragmentColor = vec4(vColor, 1.0);
+    fragmentColor = uBaseColorFactor;
 }

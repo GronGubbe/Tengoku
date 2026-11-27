@@ -63,10 +63,10 @@ public class Tengoku implements Runnable, AutoCloseable {
         renderExtractor = new RenderExtractor();
         glbLoader = new GlbLoader();
 
-        ModelAsset gobletModel;
+        ModelAsset modelAsset;
 
         try {
-            gobletModel = glbLoader.load("models/goblet.glb");
+            modelAsset = glbLoader.load("models/cube.glb");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -75,7 +75,7 @@ public class Tengoku implements Runnable, AutoCloseable {
 
         TransformComponent transform1 = new TransformComponent();
 
-        transform1.setPosition(0.0f, -0.25f, 0.0f);
+        transform1.setPosition(0.0f, 0.25f, 0.0f);
         transform1.setScale(0.25f);
 
         transform1.setRotation(new Quaternionf().rotateXYZ(
@@ -85,7 +85,7 @@ public class Tengoku implements Runnable, AutoCloseable {
         ));
 
         world.addComponent(entity1, transform1);
-        world.addComponent(entity1, new ModelComponent(gobletModel));
+        world.addComponent(entity1, new ModelComponent(modelAsset));
 
         Matrix4f viewMatrix = new Matrix4f();
         viewMatrix.rotateXYZ(0.0f, 0.0f, 0.0f);

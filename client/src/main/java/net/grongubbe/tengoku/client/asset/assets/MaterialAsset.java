@@ -1,6 +1,7 @@
 package net.grongubbe.tengoku.client.asset.assets;
 
 import net.grongubbe.tengoku.client.asset.IAsset;
+import net.grongubbe.tengoku.client.material.AlphaMode;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -273,11 +274,5 @@ public class MaterialAsset implements IAsset {
         public MaterialAsset build() {
             return new MaterialAsset(this);
         }
-    }
-
-    public enum AlphaMode {
-        OPAQUE,
-        MASK,
-        BLEND
     }
 }
